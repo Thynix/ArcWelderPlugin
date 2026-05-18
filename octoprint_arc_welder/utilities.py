@@ -24,9 +24,6 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-from __future__ import absolute_import
-from __future__ import unicode_literals
-import six
 import os
 import ntpath
 
@@ -57,11 +54,8 @@ def dict_encode(d):
     def dict_key_value_encode(s):
         if isinstance(s, dict):
             return dict_encode(s)
-        try:
-            if isinstance(s, str):
-                return unicode(s, errors='ignore', encoding='utf-8')
-        except NameError:  # Python 3
-            if isinstance(s, bytes):
-                return str(s, errors='ignore', encoding='utf-8')
+
+        if isinstance(s, bytes):
+            return str(s, errors='ignore', encoding='utf-8')
         return s
-    return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in six.iteritems(d)}
+    return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in d.iteritems()}

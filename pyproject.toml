@@ -1,0 +1,77 @@
+[build-system]
+requires = [
+    "setuptools>=68",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Arc-Welder"
+version = "1.1.0rc7"
+description = "Converts line segments to curves, which reduces the number of gcodes per second, hopefully eliminating stuttering."
+authors = [
+    { name = "Brad Hochgesang", email = "FormerLurker@pm.me" },
+    { name = "Steve Dougherty", email = "steve@asksteved.com" },
+]
+requires-python = ">=3.7,<4"
+dependencies = [
+    "OctoPrint>=1.8.0",
+]
+dynamic = [
+    "license",
+]
+
+[project.entry-points."octoprint.plugin"]
+arc_welder = "octoprint_arc_welder"
+
+[project.urls]
+Homepage = "https://github.com/Thynix/ArcWelderPlugin"
+
+[project.optional-dependencies]
+develop = [
+    "go-task-bin",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+include-package-data = true
+ext-modules = [
+    {
+        name = "PyArcWelder",
+        # msvccompiler does not exist: ModuleNotFoundError: No module named 'distutils.msvccompiler'
+        compiler = "gcc",
+        include_dirs = [
+            "octoprint_arc_welder/data/lib/c/arc_welder",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib",
+            "octoprint_arc_welder/data/lib/c/py_arc_welder",
+        ],
+        sources = [
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/array_list.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/circular_buffer.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/extruder.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/gcode_comment_processor.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/gcode_parser.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/gcode_position.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/parsed_command.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/parsed_command_parameter.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/position.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/utilities.cpp",
+            "octoprint_arc_welder/data/lib/c/gcode_processor_lib/logger.cpp",
+            "octoprint_arc_welder/data/lib/c/arc_welder/arc_welder.cpp",
+            "octoprint_arc_welder/data/lib/c/arc_welder/segmented_arc.cpp",
+            "octoprint_arc_welder/data/lib/c/arc_welder/segmented_shape.cpp",
+            "octoprint_arc_welder/data/lib/c/py_arc_welder/py_logger.cpp",
+            "octoprint_arc_welder/data/lib/c/py_arc_welder/py_arc_welder.cpp",
+            "octoprint_arc_welder/data/lib/c/py_arc_welder/py_arc_welder_extension.cpp",
+            "octoprint_arc_welder/data/lib/c/py_arc_welder/python_helpers.cpp",
+        ],
+    }
+]
+
+[tool.setuptools.packages.find]
+include = [
+    "octoprint_arc_welder",
+    "octoprint_arc_welder.*",
+]

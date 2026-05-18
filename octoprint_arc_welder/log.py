@@ -28,7 +28,6 @@ from __future__ import unicode_literals
 import logging
 import datetime as datetime
 import os
-import six
 from octoprint.logging.handlers import (
     AsyncLogHandlerMixin,
     CleaningTimedRotatingFileHandler,
@@ -101,8 +100,7 @@ class ArcWelderFileHandler(CleaningTimedRotatingFileHandler, AsyncLogHandlerMixi
         self.backupCount = backup_count
 
 
-@six.add_metaclass(Singleton)
-class LoggingConfigurator(object):
+class LoggingConfigurator(object, metaclass=Singleton):
     BACKUP_COUNT = 3
 
     def __init__(self, root_logger_name, log_entry_prefix, log_file_prefix):
