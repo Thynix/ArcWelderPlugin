@@ -41,7 +41,6 @@ ext-modules = [
     {
         name = "PyArcWelder",
         # msvccompiler does not exist: ModuleNotFoundError: No module named 'distutils.msvccompiler'
-        compiler = "gcc",
         include_dirs = [
             "octoprint_arc_welder/data/lib/c/arc_welder",
             "octoprint_arc_welder/data/lib/c/gcode_processor_lib",
