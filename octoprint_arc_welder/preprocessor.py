@@ -19,8 +19,6 @@ import octoprint_arc_welder.log as log
 import octoprint_arc_welder.utilities as utilities
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
-root_logger = logging_configurator.get_root_logger()
-# so that we can
 logger = logging_configurator.get_logger(__name__)
 
 
@@ -52,10 +50,6 @@ class PreProcessorWorker(threading.Thread):
         self._failed_callback = failed_callback
         self._success_callback = success_callback
         self._completed_callback = completed_callback
-        self._is_processing = False
-        self._current_file_processing_path = None
-        self._is_cancelled = False
-        self.r_lock = threading.RLock()
 
     def cancel_all(self):
         while not self._task_queue.empty():
@@ -64,9 +58,7 @@ class PreProcessorWorker(threading.Thread):
             self._cancel_callback(path, processor_args)
 
     def is_processing(self):
-        with self.r_lock:
-            is_processing = (not self._task_queue.empty()) or self._is_processing
-        return is_processing
+        return not self._task_queue.empty()
 
     def run(self):
         while True:
@@ -159,6 +151,6 @@ class PreProcessorWorker(threading.Thread):
         # the progress payload will all be in bytes (str for python 2) format.
         # Make sure everything is in unicode (str for python3) because mixed encoding
         # messes with things.
-        encoded_progresss = utilities.dict_encode(progress)
-        logger.verbose("Progress Received: %s", encoded_progresss)
-        return self._progress_callback(encoded_progresss)
+        encoded_progress = utilities.dict_encode(progress)
+        logger.verbose("Progress Received: %s", encoded_progress)
+        return self._progress_callback(encoded_progress)

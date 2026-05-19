@@ -7,7 +7,7 @@
 #
 # Copyright (C) 2020  Brad Hochgesang
 ##################################################################################
-import datetime as datetime
+import datetime
 import logging
 import os
 
@@ -47,8 +47,7 @@ logging.Logger.verbose = verbose
 
 def format_log_time(time_seconds):
     log_time = datetime.datetime.fromtimestamp(time_seconds)
-    t = datetime.datetime.strftime(log_time, f"%Y-%m-%d %H:%M:%S,{int(log_time.microsecond / 1000):03}")
-    return t
+    return datetime.datetime.strftime(log_time, f"%Y-%m-%d %H:%M:%S,{int(log_time.microsecond / 1000):03}")
 
 
 class ArcWelderFormatter(logging.Formatter):
@@ -91,8 +90,6 @@ class LoggingConfigurator(metaclass=Singleton):
         self._log_entry_prefix = log_entry_prefix  # "arc_welder."
         self._log_file_prefix = log_file_prefix  # "octoprint_arc_welder."
         self._root_logger = self._get_root_logger(self._root_logger_name)
-
-        self._level = logging.DEBUG
         self._file_handler = None
         self._console_handler = None
         self.child_loggers = set()

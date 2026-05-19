@@ -29,17 +29,16 @@ import octoprint_arc_welder.preprocessor as preprocessor
 import octoprint_arc_welder.utilities as utilities
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
-root_logger = logging_configurator.get_root_logger()
 logger = logging_configurator.get_logger("__init__")
 
 
 class ArcWelderPlugin(
-    octoprint.plugin.StartupPlugin,
-    octoprint.plugin.TemplatePlugin,
-    octoprint.plugin.SettingsPlugin,
     octoprint.plugin.AssetPlugin,
     octoprint.plugin.BlueprintPlugin,
     octoprint.plugin.EventHandlerPlugin,
+    octoprint.plugin.SettingsPlugin,
+    octoprint.plugin.StartupPlugin,
+    octoprint.plugin.TemplatePlugin,
 ):
     FILE_PROCESSING_BOTH = "both"
     FILE_PROCESSING_AUTO = "auto-only"
