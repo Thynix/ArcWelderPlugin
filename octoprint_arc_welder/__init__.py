@@ -17,12 +17,9 @@ from shutil import copyfile
 
 import octoprint.access.permissions as permissions
 import octoprint.plugin
-import tornado
-from flask import jsonify, request
+from flask import abort, jsonify, request, send_file
 from octoprint.events import Events
 from octoprint.filemanager import FileDestinations
-from octoprint.server import app, util
-from octoprint.server.util.tornado import LargeResponseHandler
 
 import octoprint_arc_welder.log as log
 import octoprint_arc_welder.preprocessor as preprocessor
@@ -159,6 +156,14 @@ class ArcWelderPlugin(
         logging_configurator.do_rollover(clear_all=clear_all)
         return jsonify({"success": True})
 
+    @octoprint.plugin.BlueprintPlugin.route("/downloadFile", methods=["GET"])
+    @permissions.Permissions.ADMIN.require(403)
+    def download_file_request(self):
+        if request.args.get("type") != "log" or not self._log_file_path or not os.path.isfile(self._log_file_path):
+            abort(404)
+
+        return send_file(self._log_file_path, as_attachment=True)
+
     # Preprocess from file sidebar
     @octoprint.plugin.BlueprintPlugin.route("/process", methods=["POST"])
     @permissions.Permissions.ADMIN.require(403)
@@ -186,17 +191,6 @@ class ArcWelderPlugin(
         # force save the settings and trigger a SettingsUpdated event
         self._settings.save(trigger_event=True)
         return jsonify({"success": True})
-
-    # Callback Handler for /downloadFile
-    # uses the ArcWelderLargeResponseHandler
-    def download_file_request(self, request_handler):
-        # get the args
-        file_type = request_handler.get_query_arguments("type")[0]
-        if file_type == "log":
-            full_path = self._log_file_path
-        if full_path is None or not os.path.isfile(full_path):
-            raise tornado.web.HTTPError(404)
-        return full_path
 
     def send_notification_toast(self, toast_type, title, message, auto_hide, key=None, close_keys=[]):
         data = {
@@ -725,22 +719,6 @@ class ArcWelderPlugin(
         preprocessor_args = self.get_preprocessor_arguments(path_on_disk)
         self._processing_queue.put((path, preprocessor_args, additional_metadata, is_manual_request))
 
-    def register_custom_routes(self, server_routes, *args, **kwargs):
-        admin_validation_chain = [
-            util.tornado.access_validation_factory(app, util.flask.permission_validator, permissions.Permissions.ADMIN),
-        ]
-        return [
-            (
-                r"/downloadFile",
-                ArcWelderLargeResponseHandler,
-                dict(
-                    request_callback=self.download_file_request,
-                    as_attachment=True,
-                    access_validation=util.tornado.validation_chain(*admin_validation_chain),
-                ),
-            )
-        ]
-
     # ~~ software update hook
 
     arc_welder_update_info = dict(
@@ -775,65 +753,6 @@ class ArcWelderPlugin(
         return self.get_release_info()
 
 
-class ArcWelderLargeResponseHandler(LargeResponseHandler):
-    def initialize(
-        self,
-        request_callback,
-        as_attachment=False,
-        access_validation=None,
-        default_filename=None,
-        on_before_request=None,
-        on_after_request=None,
-    ):
-        super().initialize(
-            "",
-            default_filename=default_filename,
-            as_attachment=as_attachment,
-            allow_client_caching=False,
-            access_validation=access_validation,
-            path_validation=None,
-            etag_generator=None,
-            name_generator=self.name_generator,
-            mime_type_guesser=None,
-        )
-        self.download_file_name = None
-        self._before_request_callback = on_before_request
-        self._request_callback = request_callback
-        self._after_request_callback = on_after_request
-        self.after_request_internal = None
-        self.after_request_internal_args = None
-
-    def name_generator(self, path):
-        if self.download_file_name is not None:
-            return self.download_file_name
-
-    def prepare(self):
-        if self._before_request_callback:
-            self._before_request_callback()
-
-    def get(self, include_body=True):
-        if self._access_validation is not None:
-            self._access_validation(self.request)
-
-        if "cookie" in self.request.arguments:
-            self.set_cookie(self.request.arguments["cookie"][0], "true", path="/")
-        full_path = self._request_callback(self)
-        self.root = os.path.dirname(full_path)
-
-        # if the file does not exist, return a 404
-        if not os.path.isfile(full_path):
-            raise tornado.web.HTTPError(404)
-
-        # return the file
-        return tornado.web.StaticFileHandler.get(self, full_path, include_body=include_body)
-
-    def on_finish(self):
-        if self.after_request_internal:
-            self.after_request_internal(**self.after_request_internal_args)
-
-        if self._after_request_callback:
-            self._after_request_callback()
-
 
 class TargetFileSaveError(Exception):
     pass
@@ -843,5 +762,4 @@ __plugin_pythoncompat__ = ">=3.7,<4"
 __plugin_implementation__ = ArcWelderPlugin()
 __plugin_hooks__ = {
     "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-    "octoprint.server.http.routes": __plugin_implementation__.register_custom_routes,
 }
