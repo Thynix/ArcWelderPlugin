@@ -22,7 +22,6 @@ from flask import jsonify, request
 from octoprint.events import Events
 from octoprint.filemanager import FileDestinations
 from octoprint.server import app, util
-from octoprint.server.util.flask import restricted_access
 from octoprint.server.util.tornado import LargeResponseHandler
 
 import octoprint_arc_welder.log as log
@@ -42,8 +41,6 @@ class ArcWelderPlugin(
     octoprint.plugin.BlueprintPlugin,
     octoprint.plugin.EventHandlerPlugin,
 ):
-    admin_permission = permissions.Permissions.ADMIN
-
     FILE_PROCESSING_BOTH = "both"
     FILE_PROCESSING_AUTO = "auto-only"
     FILE_PROCESSING_MANUAL = "manual-only"
@@ -127,67 +124,63 @@ class ArcWelderPlugin(
 
     # Blueprints
     @octoprint.plugin.BlueprintPlugin.route("/cancelPreprocessing", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def cancel_preprocessing_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            request_values = request.get_json()
-            cancel_all = request_values["cancel_all"]
-            preprocessing_job_guid = request_values["preprocessing_job_guid"]
-            if cancel_all:
-                self._preprocessor_worker.cancel_all()
+        request_values = request.get_json()
+        cancel_all = request_values["cancel_all"]
+        preprocessing_job_guid = request_values["preprocessing_job_guid"]
+        if cancel_all:
+            self._preprocessor_worker.cancel_all()
 
-            if self.preprocessing_job_guid is None or preprocessing_job_guid != str(self.preprocessing_job_guid):
-                # return without doing anything, this job is already over
-                return jsonify({"success": True})
-
-            logger.info("Cancelling Preprocessing for /cancelPreprocessing.")
-            self.preprocessing_job_guid = None
-            self.is_cancelled = True
+        if self.preprocessing_job_guid is None or preprocessing_job_guid != str(self.preprocessing_job_guid):
+            # return without doing anything, this job is already over
             return jsonify({"success": True})
+
+        logger.info("Cancelling Preprocessing for /cancelPreprocessing.")
+        self.preprocessing_job_guid = None
+        self.is_cancelled = True
+        return jsonify({"success": True})
 
     @octoprint.plugin.BlueprintPlugin.route("/clearLog", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def clear_log_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            request_values = request.get_json()
-            clear_all = request_values["clear_all"]
-            if clear_all:
-                logger.info("Clearing all log files.")
-            else:
-                logger.info("Rolling over most recent log.")
+        request_values = request.get_json()
+        clear_all = request_values["clear_all"]
+        if clear_all:
+            logger.info("Clearing all log files.")
+        else:
+            logger.info("Rolling over most recent log.")
 
-            logging_configurator.do_rollover(clear_all=clear_all)
-            return jsonify({"success": True})
+        logging_configurator.do_rollover(clear_all=clear_all)
+        return jsonify({"success": True})
 
     # Preprocess from file sidebar
     @octoprint.plugin.BlueprintPlugin.route("/process", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def process_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            if self._enabled:
-                request_values = request.get_json()
-                path = request_values["path"]
-                origin = request_values["origin"]
-                # decode the path
-                path = urllibparse.unquote(path)
-                # get the metadata for the file
-                metadata = self._file_manager.get_metadata(origin, path)
-                if "arc_welder" not in metadata:
-                    # Extract only the supported metadata from the added file
-                    additional_metadata = self.get_additional_metadata(metadata)
-                    # add the file and metadata to the processor queue
-                    self.add_file_to_preprocessor_queue(path, additional_metadata, True)
-                    return jsonify({"success": True})
-            return jsonify({"success": False, "message": "Arc Welder is Disabled."})
+        if self._enabled:
+            request_values = request.get_json()
+            path = request_values["path"]
+            origin = request_values["origin"]
+            # decode the path
+            path = urllibparse.unquote(path)
+            # get the metadata for the file
+            metadata = self._file_manager.get_metadata(origin, path)
+            if "arc_welder" not in metadata:
+                # Extract only the supported metadata from the added file
+                additional_metadata = self.get_additional_metadata(metadata)
+                # add the file and metadata to the processor queue
+                self.add_file_to_preprocessor_queue(path, additional_metadata, True)
+                return jsonify({"success": True})
+        return jsonify({"success": False, "message": "Arc Welder is Disabled."})
 
     @octoprint.plugin.BlueprintPlugin.route("/restoreDefaultSettings", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def restore_default_settings_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            self._settings.set([], self.settings_default)
-            # force save the settings and trigger a SettingsUpdated event
-            self._settings.save(trigger_event=True)
-            return jsonify({"success": True})
+        self._settings.set([], self.settings_default)
+        # force save the settings and trigger a SettingsUpdated event
+        self._settings.save(trigger_event=True)
+        return jsonify({"success": True})
 
     # Callback Handler for /downloadFile
     # uses the ArcWelderLargeResponseHandler
