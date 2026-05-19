@@ -78,47 +78,20 @@ class ArcWelderPlugin(
         # start the preprocessor worker
         self._preprocessor_worker = None
 
-    def on_after_startup(self):
-        logging_configurator.configure_loggers(self._log_file_path, self._logging_configuration)
-        self._preprocessor_worker = preprocessor.PreProcessorWorker(
-            self.get_plugin_data_folder(),
-            self._processing_queue,
-            self._get_is_printing,
-            self.preprocessing_started,
-            self.preprocessing_progress,
-            self.preprocessing_cancelled,
-            self.preprocessing_failed,
-            self.preprocessing_success,
-            self.preprocessing_completed,
+    # ~~ AssetPlugin mixin
+    def get_assets(self):
+        return dict(
+            js=[
+                "js/showdown.min.js",
+                "js/pnotify_extensions.js",
+                "js/markdown_help.js",
+                "js/arc_welder.js",
+                "js/arc_welder.settings.js",
+            ],
+            css=["css/arc_welder.css"],
         )
-        self._preprocessor_worker.daemon = True
-        self._preprocessor_worker.start()
-        logger.info("Startup Complete.")
 
-    # Events
-    def get_settings_defaults(self):
-        return self.settings_default
-
-    def get_template_vars(self):
-        return {
-            "plugin_version": self._plugin_version,
-        }
-
-    def on_settings_save(self, data):
-        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
-        # reconfigure logging
-        logging_configurator.configure_loggers(self._log_file_path, self._logging_configuration)
-
-    def get_template_configs(self):
-        return [
-            dict(
-                type="settings",
-                custom_bindings=True,
-                template="arc_welder_settings.jinja2",
-            )
-        ]
-
-    # Blueprints
+    # ~~ BlueprintPlugin mixin
     def is_blueprint_protected(self):
         return True
 
@@ -192,60 +165,107 @@ class ArcWelderPlugin(
         self._settings.save(trigger_event=True)
         return jsonify({"success": True})
 
-    def send_notification_toast(self, toast_type, title, message, auto_hide, key=None, close_keys=[]):
-        data = {
-            "message_type": "toast",
-            "toast_type": toast_type,
-            "title": title,
-            "message": message,
-            "auto_hide": auto_hide,
-            "key": key,
-            "close_keys": close_keys,
-        }
-        self._plugin_manager.send_plugin_message(self._identifier, data)
+    # ~~ EventHandlerPlugin mixin
+    def on_event(self, event, payload):
+        # Need to use file added event to catch uploads and other non-upload methods of adding a file.
+        if event == Events.FILE_ADDED:
+            if not self._enabled or not self._auto_pre_processing_enabled:
+                return
+            # Note, 'target' is the key for FILE_UPLOADED, but 'storage' is the key for FILE_ADDED
+            target = payload["storage"]
+            path = payload["path"]
+            name = payload["name"]
 
-    # ~~ AssetPlugin mixin
-    def get_assets(self):
-        # Define your plugin's asset files to automatically include in the
-        # core UI here.
+            if path == self.preprocessing_job_source_file_path or name == self.preprocessing_job_target_file_name:
+                return
+
+            if not octoprint.filemanager.valid_file_type(path, type="gcode"):
+                return
+
+            if not target == FileDestinations.LOCAL:
+                return
+
+            metadata = self._file_manager.get_metadata(target, path)
+            if "arc_welder" in metadata:
+                return
+            # Extract only the supported metadata from the added file
+            additional_metadata = self.get_additional_metadata(metadata)
+            # Add this file to the processor queue.
+            self.add_file_to_preprocessor_queue(path, additional_metadata, False)
+
+    # ~~ SettingsPlugin mixin
+    def get_settings_defaults(self):
+        return self.settings_default
+
+    def on_settings_save(self, data):
+        octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+        # reconfigure logging
+        logging_configurator.configure_loggers(self._log_file_path, self._logging_configuration)
+
+    # ~~ Software Update Hook
+    def get_update_information(self):
         return dict(
-            js=[
-                "js/showdown.min.js",
-                "js/pnotify_extensions.js",
-                "js/markdown_help.js",
-                "js/arc_welder.js",
-                "js/arc_welder.settings.js",
-            ],
-            css=["css/arc_welder.css"],
+            arc_welder=dict(
+                displayName="Arc Welder: Anti-Stutter",
+                type="github_release",
+                user="Thynix",
+                repo="ArcWelderPlugin",
+                pip="https://github.com/Thynix/ArcWelderPlugin/archive/{target_version}.zip",
+                stable_branch=dict(branch="master", commitish=["master"], name="Stable"),
+                release_compare="custom",
+                prerelease_branches=[
+                    dict(
+                        branch="rc/maintenance",
+                        commitish=["master", "rc/maintenance"],  # maintenance RCs (include master)
+                        name="Maintenance RCs",
+                    ),
+                    dict(
+                        branch="rc/devel",
+                        commitish=["master", "rc/maintenance", "rc/devel"],  # devel & maintenance RCs (include master)
+                        name="Devel RCs",
+                    ),
+                ],
+            )
         )
 
-    def _is_file_selected(self, path, origin):
-        current_job = self._printer.get_current_job()
-        current_file = current_job.get("file", {"path": "", "origin": ""})
-        current_file_path = current_file["path"]
-        # ensure the current file path starts with a /
-        if current_file_path and current_file_path[0] != "/":
-            current_file_path = "/" + current_file_path
-        current_file_origin = current_file["origin"]
-        return path == current_file_path and origin == current_file_origin
+    # ~~ StartupPlugin mixin
+    def on_after_startup(self):
+        logging_configurator.configure_loggers(self._log_file_path, self._logging_configuration)
+        self._preprocessor_worker = preprocessor.PreProcessorWorker(
+            self.get_plugin_data_folder(),
+            self._processing_queue,
+            self._get_is_printing,
+            self.preprocessing_started,
+            self.preprocessing_progress,
+            self.preprocessing_cancelled,
+            self.preprocessing_failed,
+            self.preprocessing_success,
+            self.preprocessing_completed,
+        )
+        self._preprocessor_worker.daemon = True
+        self._preprocessor_worker.start()
+        logger.info("Startup Complete.")
 
-    def _get_is_printing(self, path=None):
-        # If the printer is NOT printing, always return false
-        if not self._printer.is_printing():
-            return False
-        # If the path parameter is provided, check for a locally printing file of the same path
-        if path:
-            return self._is_file_selected(path, FileDestinations.LOCAL)
+    # ~~ TemplatePlugin mixin
+    def get_template_vars(self):
+        return {
+            "plugin_version": self._plugin_version,
+        }
 
-        return False
+    def get_template_configs(self):
+        return [
+            dict(
+                type="settings",
+                custom_bindings=True,
+                template="arc_welder_settings.jinja2",
+            )
+        ]
 
-    # Properties
-
+    # ~~ Properties
     @property
     def _log_file_path(self):
         return self._settings.get_plugin_logfile_path()
 
-    # Settings Properties
     @property
     def _logging_configuration(self):
         logging_configurator = self._settings.get(["logging_configuration"])
@@ -364,9 +384,39 @@ class ArcWelderPlugin(
     def _show_completed_notification(self):
         return self._settings.get(["notification_settings", "show_completed_notification"])
 
-    @property
-    def _delete_source_after_processing(self):
-        return self._settings.get(["delete_source_after_processing"])
+    def send_notification_toast(self, toast_type, title, message, auto_hide, key=None, close_keys=None):
+        if close_keys is None:
+            close_keys = []
+        data = {
+            "message_type": "toast",
+            "toast_type": toast_type,
+            "title": title,
+            "message": message,
+            "auto_hide": auto_hide,
+            "key": key,
+            "close_keys": close_keys,
+        }
+        self._plugin_manager.send_plugin_message(self._identifier, data)
+
+    def _is_file_selected(self, path, origin):
+        current_job = self._printer.get_current_job()
+        current_file = current_job.get("file", {"path": "", "origin": ""})
+        current_file_path = current_file["path"]
+        # ensure the current file path starts with a /
+        if current_file_path and current_file_path[0] != "/":
+            current_file_path = "/" + current_file_path
+        current_file_origin = current_file["origin"]
+        return path == current_file_path and origin == current_file_origin
+
+    def _get_is_printing(self, path=None):
+        # If the printer is NOT printing, always return false
+        if not self._printer.is_printing():
+            return False
+        # If the path parameter is provided, check for a locally printing file of the same path
+        if path:
+            return self._is_file_selected(path, FileDestinations.LOCAL)
+
+        return False
 
     def get_storage_path_and_name(self, storage_path, add_prefix_and_postfix):
         path, name = self._file_manager.split_path(FileDestinations.LOCAL, storage_path)
@@ -658,33 +708,6 @@ class ArcWelderPlugin(
         }
         self._plugin_manager.send_plugin_message(self._identifier, data)
 
-    def on_event(self, event, payload):
-        # Need to use file added event to catch uploads and other non-upload methods of adding a file.
-        if event == Events.FILE_ADDED:
-            if not self._enabled or not self._auto_pre_processing_enabled:
-                return
-            # Note, 'target' is the key for FILE_UPLOADED, but 'storage' is the key for FILE_ADDED
-            target = payload["storage"]
-            path = payload["path"]
-            name = payload["name"]
-
-            if path == self.preprocessing_job_source_file_path or name == self.preprocessing_job_target_file_name:
-                return
-
-            if not octoprint.filemanager.valid_file_type(path, type="gcode"):
-                return
-
-            if not target == FileDestinations.LOCAL:
-                return
-
-            metadata = self._file_manager.get_metadata(target, path)
-            if "arc_welder" in metadata:
-                return
-            # Extract only the supported metadata from the added file
-            additional_metadata = self.get_additional_metadata(metadata)
-            # Add this file to the processor queue.
-            self.add_file_to_preprocessor_queue(path, additional_metadata, False)
-
     def get_additional_metadata(self, metadata):
         # list of supported metadata
         supported_metadata_keys = ["thumbnail", "thumbnail_src"]
@@ -718,40 +741,6 @@ class ArcWelderPlugin(
 
         preprocessor_args = self.get_preprocessor_arguments(path_on_disk)
         self._processing_queue.put((path, preprocessor_args, additional_metadata, is_manual_request))
-
-    # ~~ software update hook
-
-    arc_welder_update_info = dict(
-        displayName="Arc Welder: Anti-Stutter",
-        # version check: github repository
-        type="github_release",
-        user="Thynix",
-        repo="ArcWelderPlugin",
-        pip="https://github.com/Thynix/ArcWelderPlugin/archive/{target_version}.zip",
-        stable_branch=dict(branch="master", commitish=["master"], name="Stable"),
-        release_compare="custom",
-        prerelease_branches=[
-            dict(
-                branch="rc/maintenance",
-                commitish=["master", "rc/maintenance"],  # maintenance RCs (include master)
-                name="Maintenance RCs",
-            ),
-            dict(
-                branch="rc/devel",
-                commitish=["master", "rc/maintenance", "rc/devel"],  # devel & maintenance RCs (include master)
-                name="Devel RCs",
-            ),
-        ],
-    )
-
-    def get_release_info(self):
-        return dict(arc_welder=ArcWelderPlugin.arc_welder_update_info)
-
-    def get_update_information(self):
-        # moved most of the heavy lifting to get_latest, since I need to do a custom version compare.
-        # AND I want to use the most recent software update release channel settings.
-        return self.get_release_info()
-
 
 
 class TargetFileSaveError(Exception):
