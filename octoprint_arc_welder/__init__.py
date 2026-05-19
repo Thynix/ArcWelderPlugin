@@ -123,6 +123,12 @@ class ArcWelderPlugin(
         ]
 
     # Blueprints
+    def is_blueprint_protected(self):
+        return True
+
+    def is_blueprint_csrf_protected(self):
+        return True
+
     @octoprint.plugin.BlueprintPlugin.route("/cancelPreprocessing", methods=["POST"])
     @permissions.Permissions.ADMIN.require(403)
     def cancel_preprocessing_request(self):
