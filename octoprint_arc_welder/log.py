@@ -170,13 +170,10 @@ class LoggingConfigurator(metaclass=Singleton):
         self._root_logger.setLevel(logging.NOTSET)
 
         if log_file_path is not None:
-            # ensure that the logging path and file exist
+            # ensure that the logging directory exists
             directory = os.path.dirname(log_file_path)
-            import distutils.dir_util
-
-            distutils.dir_util.mkpath(directory)
-            if not os.path.isfile(log_file_path):
-                open(log_file_path, "w").close()
+            if directory:
+                os.makedirs(directory, exist_ok=True)
 
             # add the file handler
             self._add_file_handler(log_file_path, logging.NOTSET)
