@@ -509,9 +509,9 @@ class ArcWelderPlugin(
         if "thumbnail_src" in additional_metadata:
             del additional_metadata["thumbnail_src"]
 
-        if has_ultimaker_format_package_thumbnail and "thumbnail_src" not in additional_metadata:
+        if has_ultimaker_format_package_thumbnail:
             additional_metadata["thumbnail_src"] = "UltimakerFormatPackage"
-        elif has_prusa_slicer_thumbnail and "thumbnail_src" not in additional_metadata:
+        elif has_prusa_slicer_thumbnail:
             additional_metadata["thumbnail_src"] = "prusaslicerthumbnails"
 
         # add the additional metadata
@@ -709,18 +709,9 @@ class ArcWelderPlugin(
         self._plugin_manager.send_plugin_message(self._identifier, data)
 
     def get_additional_metadata(self, metadata):
-        # list of supported metadata
-        supported_metadata_keys = ["thumbnail", "thumbnail_src"]
-        additional_metadata = {}
-        # Create the additional metadata from the supported keys
-        for key in supported_metadata_keys:
-            if key in metadata:
-                additional_metadata[key] = metadata[key]
-        return additional_metadata
+        return {key: metadata[key] for key in ["thumbnail", "thumbnail_src"] if key in metadata}
 
     def add_file_to_preprocessor_queue(self, path, additional_metadata, is_manual_request):
-        # get the file by path
-        # file = self._file_manager.get_file(FileDestinations.LOCAL, path)
         if self._get_is_printing():
             self.send_notification_toast(
                 "warning",
