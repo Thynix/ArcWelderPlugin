@@ -1,4 +1,3 @@
-# coding=utf-8
 # #################################################################################
 # Arc Welder: Anti-Stutter
 #
@@ -24,39 +23,37 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-import time
 import datetime
-import uuid
-from flask import request, jsonify
 import os
+import queue
+import time
+import urllib.parse as urllibparse
+import uuid
+from shutil import copyfile
+
+import octoprint.access.permissions as permissions
 import octoprint.plugin
 import tornado
-from shutil import copyfile
-import octoprint.access.permissions as permissions
-from octoprint.server.util.tornado import LargeResponseHandler
-from octoprint.server import util, app
-from octoprint.filemanager import FileDestinations
-from octoprint.server.util.flask import restricted_access
+from flask import jsonify, request
 from octoprint.events import Events
-from octoprint.plugins.softwareupdate.version_checks import github_release
+from octoprint.filemanager import FileDestinations
+from octoprint.server import app, util
+from octoprint.server.util.flask import restricted_access
+from octoprint.server.util.tornado import LargeResponseHandler
+
 import octoprint_arc_welder.log as log
 import octoprint_arc_welder.preprocessor as preprocessor
 import octoprint_arc_welder.utilities as utilities
-import queue
 
-octoprint.get_version_data()
-
-try:
-    import urllib.parse as urllibparse
-except ImportError:
-    import urllib as urllibparse
+from ._version import get_versions
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
 root_logger = logging_configurator.get_root_logger()
-# so that we can
 logger = logging_configurator.get_logger("__init__")
 
-# TODO: where to get version? Still use
+_version_data = get_versions()
+__version__ = _version_data["version"]
+__git_version__ = _version_data.get("revision")
 
 
 class ArcWelderPlugin(
@@ -65,7 +62,7 @@ class ArcWelderPlugin(
     octoprint.plugin.SettingsPlugin,
     octoprint.plugin.AssetPlugin,
     octoprint.plugin.BlueprintPlugin,
-    octoprint.plugin.EventHandlerPlugin
+    octoprint.plugin.EventHandlerPlugin,
 ):
     admin_permission = permissions.Permissions.ADMIN
 
@@ -79,7 +76,7 @@ class ArcWelderPlugin(
     SOURCE_FILE_DELETE_DISABLED = "disabled"
 
     def __init__(self):
-        super(ArcWelderPlugin, self).__init__()
+        super().__init__()
         self.preprocessing_job_guid = None
         self.preprocessing_job_source_file_path = ""
         self.preprocessing_job_target_file_name = ""
@@ -89,18 +86,16 @@ class ArcWelderPlugin(
             use_octoprint_settings=True,
             g90_g91_influences_extruder=False,
             resolution_mm=0.05,
-            max_radius_mm=1000*1000,  # 1KM, pretty big :)
+            max_radius_mm=1000 * 1000,  # 1KM, pretty big :)
             overwrite_source_file=False,
             target_prefix="",
             target_postfix=".aw",
             notification_settings=dict(
-                show_started_notification=True,
-                show_progress_bar=True,
-                show_completed_notification=True
+                show_started_notification=True, show_progress_bar=True, show_completed_notification=True
             ),
             feature_settings=dict(
                 file_processing=ArcWelderPlugin.FILE_PROCESSING_BOTH,
-                delete_source=ArcWelderPlugin.SOURCE_FILE_DELETE_DISABLED
+                delete_source=ArcWelderPlugin.SOURCE_FILE_DELETE_DISABLED,
             ),
             enabled=True,
             logging_configuration=dict(
@@ -115,9 +110,7 @@ class ArcWelderPlugin(
         self._preprocessor_worker = None
 
     def on_after_startup(self):
-        logging_configurator.configure_loggers(
-            self._log_file_path, self._logging_configuration
-        )
+        logging_configurator.configure_loggers(self._log_file_path, self._logging_configuration)
         self._preprocessor_worker = preprocessor.PreProcessorWorker(
             self.get_plugin_data_folder(),
             self._processing_queue,
@@ -142,9 +135,7 @@ class ArcWelderPlugin(
     def on_settings_save(self, data):
         octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
         # reconfigure logging
-        logging_configurator.configure_loggers(
-            self._log_file_path, self._logging_configuration
-        )
+        logging_configurator.configure_loggers(self._log_file_path, self._logging_configuration)
 
     def get_template_configs(self):
         return [
@@ -166,9 +157,7 @@ class ArcWelderPlugin(
             if cancel_all:
                 self._preprocessor_worker.cancel_all()
 
-            if self.preprocessing_job_guid is None or preprocessing_job_guid != str(
-                self.preprocessing_job_guid
-            ):
+            if self.preprocessing_job_guid is None or preprocessing_job_guid != str(self.preprocessing_job_guid):
                 # return without doing anything, this job is already over
                 return jsonify({"success": True})
 
@@ -224,18 +213,15 @@ class ArcWelderPlugin(
     # Callback Handler for /downloadFile
     # uses the ArcWelderLargeResponseHandler
     def download_file_request(self, request_handler):
-        download_file_path = None
         # get the args
-        file_type = request_handler.get_query_arguments('type')[0]
-        if file_type == 'log':
+        file_type = request_handler.get_query_arguments("type")[0]
+        if file_type == "log":
             full_path = self._log_file_path
         if full_path is None or not os.path.isfile(full_path):
             raise tornado.web.HTTPError(404)
         return full_path
 
-    def send_notification_toast(
-        self, toast_type, title, message, auto_hide, key=None, close_keys=[]
-    ):
+    def send_notification_toast(self, toast_type, title, message, auto_hide, key=None, close_keys=[]):
         data = {
             "message_type": "toast",
             "toast_type": toast_type,
@@ -264,11 +250,11 @@ class ArcWelderPlugin(
 
     def _is_file_selected(self, path, origin):
         current_job = self._printer.get_current_job()
-        current_file = current_job.get("file", {'path': "", "origin": ""})
+        current_file = current_job.get("file", {"path": "", "origin": ""})
         current_file_path = current_file["path"]
         # ensure the current file path starts with a /
-        if current_file_path and current_file_path[0] != '/':
-            current_file_path = '/' + current_file_path
+        if current_file_path and current_file_path[0] != "/":
+            current_file_path = "/" + current_file_path
         current_file_origin = current_file["origin"]
         return path == current_file_path and origin == current_file_origin
 
@@ -281,6 +267,7 @@ class ArcWelderPlugin(
             return self._is_file_selected(path, FileDestinations.LOCAL)
 
         return False
+
     # Properties
 
     @property
@@ -317,20 +304,25 @@ class ArcWelderPlugin(
 
     @property
     def _delete_source_after_manual_processing(self):
-        return self._settings.get(["feature_settings", "delete_source"]) in [
-            ArcWelderPlugin.SOURCE_FILE_DELETE_BOTH, ArcWelderPlugin.SOURCE_FILE_DELETE_MANUAL
-        ] and not self._overwrite_source_file
+        return (
+            self._settings.get(["feature_settings", "delete_source"])
+            in [ArcWelderPlugin.SOURCE_FILE_DELETE_BOTH, ArcWelderPlugin.SOURCE_FILE_DELETE_MANUAL]
+            and not self._overwrite_source_file
+        )
 
     @property
     def _delete_source_after_automatic_processing(self):
-        return self._settings.get(["feature_settings", "delete_source"]) in [
-            ArcWelderPlugin.SOURCE_FILE_DELETE_BOTH, ArcWelderPlugin.SOURCE_FILE_DELETE_AUTO
-        ] and not self._overwrite_source_file
+        return (
+            self._settings.get(["feature_settings", "delete_source"])
+            in [ArcWelderPlugin.SOURCE_FILE_DELETE_BOTH, ArcWelderPlugin.SOURCE_FILE_DELETE_AUTO]
+            and not self._overwrite_source_file
+        )
 
     @property
     def _auto_pre_processing_enabled(self):
         return self._settings.get(["feature_settings", "file_processing"]) in [
-            ArcWelderPlugin.FILE_PROCESSING_BOTH, ArcWelderPlugin.FILE_PROCESSING_AUTO
+            ArcWelderPlugin.FILE_PROCESSING_BOTH,
+            ArcWelderPlugin.FILE_PROCESSING_AUTO,
         ]
 
     @property
@@ -343,17 +335,11 @@ class ArcWelderPlugin(
     @property
     def _g90_g91_influences_extruder(self):
         if self._use_octoprint_settings:
-            g90_g91_influences_extruder = self._settings.global_get(
-                ["feature", "g90InfluencesExtruder"]
-            )
+            g90_g91_influences_extruder = self._settings.global_get(["feature", "g90InfluencesExtruder"])
         else:
-            g90_g91_influences_extruder = self._settings.get_boolean(
-                ["g90_g91_influences_extruder"]
-            )
+            g90_g91_influences_extruder = self._settings.get_boolean(["g90_g91_influences_extruder"])
         if g90_g91_influences_extruder is None:
-            g90_g91_influences_extruder = self.settings_default[
-                "g90_g91_influences_extruder"
-            ]
+            g90_g91_influences_extruder = self.settings_default["g90_g91_influences_extruder"]
         return g90_g91_influences_extruder
 
     @property
@@ -416,7 +402,7 @@ class ArcWelderPlugin(
         if add_prefix_and_postfix:
             file_name = utilities.remove_extension_from_filename(name)
             file_extension = utilities.get_extension_from_filename(name)
-            new_name = "{0}{1}{2}.{3}".format(self._target_prefix, file_name, self._target_postfix, file_extension)
+            new_name = f"{self._target_prefix}{file_name}{self._target_postfix}.{file_extension}"
         else:
             new_name = name
         new_path = self._file_manager.join_path(FileDestinations.LOCAL, path, new_name)
@@ -428,17 +414,17 @@ class ArcWelderPlugin(
             "resolution_mm": self._resolution_mm,
             "max_radius_mm": self._max_radius_mm,
             "g90_g91_influences_extruder": self._g90_g91_influences_extruder,
-            "log_level": self._gcode_conversion_log_level
+            "log_level": self._gcode_conversion_log_level,
         }
 
     def save_preprocessed_file(self, path, preprocessor_args, results, additional_metadata):
         # get the file name and path
-        new_path, new_name = self.get_storage_path_and_name(
-            path, not self._overwrite_source_file
-        )
+        new_path, new_name = self.get_storage_path_and_name(path, not self._overwrite_source_file)
 
         if self._get_is_printing(new_path):
-            raise TargetFileSaveError("The source file will be overwritten, but it is currently printing, cannot overwrite.")
+            raise TargetFileSaveError(
+                "The source file will be overwritten, but it is currently printing, cannot overwrite."
+            )
 
         if self._overwrite_source_file:
             logger.info("Overwriting source file at %s with the processed file.", path)
@@ -478,38 +464,33 @@ class ArcWelderPlugin(
             "compression_percent": progress["compression_percent"],
             "source_filename": results["source_filename"],
             "target_filename": new_name,
-            "preprocessing_job_guid": self.preprocessing_job_guid
+            "preprocessing_job_guid": self.preprocessing_job_guid,
         }
 
         self._file_manager.set_additional_metadata(
-            FileDestinations.LOCAL,
-            new_path,
-            "arc_welder_statistics",
-            metadata,
-            overwrite=True,
-            merge=False
+            FileDestinations.LOCAL, new_path, "arc_welder_statistics", metadata, overwrite=True, merge=False
         )
 
         # Add compatibility for ultimaker thumbnail package
         has_ultimaker_format_package_thumbnail = (
             "thumbnail" in additional_metadata
-            and isinstance(additional_metadata['thumbnail'], str)
-            and additional_metadata['thumbnail'].startswith('plugin/UltimakerFormatPackage/thumbnail/')
+            and isinstance(additional_metadata["thumbnail"], str)
+            and additional_metadata["thumbnail"].startswith("plugin/UltimakerFormatPackage/thumbnail/")
         )
         # Add compatibility for PrusaSlicer thumbnail package
         has_prusa_slicer_thumbnail = (
-                "thumbnail" in additional_metadata
-                and isinstance(additional_metadata['thumbnail'], str)
-                and additional_metadata['thumbnail'].startswith('plugin/prusaslicerthumbnails/thumbnail/')
+            "thumbnail" in additional_metadata
+            and isinstance(additional_metadata["thumbnail"], str)
+            and additional_metadata["thumbnail"].startswith("plugin/prusaslicerthumbnails/thumbnail/")
         )
 
         # delete the thumbnail src element if it exists, we will add it later if necessary
         if "thumbnail_src" in additional_metadata:
             del additional_metadata["thumbnail_src"]
 
-        if has_ultimaker_format_package_thumbnail and not "thumbnail_src" in additional_metadata:
+        if has_ultimaker_format_package_thumbnail and "thumbnail_src" not in additional_metadata:
             additional_metadata["thumbnail_src"] = "UltimakerFormatPackage"
-        elif has_prusa_slicer_thumbnail and not "thumbnail_src" in additional_metadata:
+        elif has_prusa_slicer_thumbnail and "thumbnail_src" not in additional_metadata:
             additional_metadata["thumbnail_src"] = "prusaslicerthumbnails"
 
         # add the additional metadata
@@ -532,12 +513,7 @@ class ArcWelderPlugin(
         for key, value in additional_metadata.items():
             if value is not None:
                 self._file_manager.set_additional_metadata(
-                    FileDestinations.LOCAL,
-                    new_path,
-                    key,
-                    value,
-                    overwrite=True,
-                    merge=False
+                    FileDestinations.LOCAL, new_path, key, value, overwrite=True, merge=False
                 )
 
         return new_path, new_name, metadata
@@ -546,13 +522,13 @@ class ArcWelderPlugin(
         # get the plugin implementation
         plugin_implementation = self._plugin_manager.get_plugin_info(thumbnail_src, True)
         if plugin_implementation:
-            thumbnail_uri_root = 'plugin/' + thumbnail_src + '/thumbnail/'
+            thumbnail_uri_root = "plugin/" + thumbnail_src + "/thumbnail/"
             data_folder = plugin_implementation.implementation.get_plugin_data_folder()
             # extract the file name from the path
-            path = thumbnail_path.replace(thumbnail_uri_root, '')
-            querystring_index = path.rfind('?')
+            path = thumbnail_path.replace(thumbnail_uri_root, "")
+            querystring_index = path.rfind("?")
             if querystring_index > -1:
-                path = path[0: querystring_index]
+                path = path[0:querystring_index]
 
             path = os.path.join(data_folder, path)
             # see if the thumbnail exists
@@ -561,24 +537,18 @@ class ArcWelderPlugin(
                 pre, ext = os.path.splitext(gcode_filename)
                 new_thumb_name = pre + ".png"
                 new_path = os.path.join(data_folder, new_thumb_name)
-                new_metadata = (
-                    thumbnail_uri_root + new_thumb_name + "?" + "{:%Y%m%d%H%M%S}".format(
-                        datetime.datetime.now()
-                    )
-                )
+                new_metadata = thumbnail_uri_root + new_thumb_name + "?" + f"{datetime.datetime.now():%Y%m%d%H%M%S}"
                 if path != new_path:
                     try:
                         copyfile(path, new_path)
-                    except (IOError, OSError) as e:
+                    except OSError:
                         logger.exception("An error occurred copying thumbnail from '%s' to '%s'", path, new_path)
                         new_metadata = None
                 return new_metadata
         return None
 
     def preprocessing_started(self, path, preprocessor_args):
-        new_path, new_name = self.get_storage_path_and_name(
-            path, not self._overwrite_source_file
-        )
+        new_path, new_name = self.get_storage_path_and_name(path, not self._overwrite_source_file)
         self.preprocessing_job_guid = str(uuid.uuid4())
         self.preprocessing_job_source_file_path = path
         self.preprocessing_job_target_file_name = new_name
@@ -593,7 +563,7 @@ class ArcWelderPlugin(
             preprocessor_args["path"],
             preprocessor_args["resolution_mm"],
             preprocessor_args["g90_g91_influences_extruder"],
-            preprocessor_args["log_level"]
+            preprocessor_args["log_level"],
         )
 
         if self._show_started_notification:
@@ -603,11 +573,11 @@ class ArcWelderPlugin(
                     "message_type": "preprocessing-start",
                     "source_filename": self.preprocessing_job_source_file_path,
                     "target_filename": self.preprocessing_job_target_file_name,
-                    "preprocessing_job_guid": self.preprocessing_job_guid
+                    "preprocessing_job_guid": self.preprocessing_job_guid,
                 }
                 self._plugin_manager.send_plugin_message(self._identifier, data)
             else:
-                message = "Arc Welder is processing '{0}'.  Please wait...".format(
+                message = "Arc Welder is processing '{}'.  Please wait...".format(
                     self.preprocessing_job_source_file_path
                 )
                 self.send_notification_toast(
@@ -632,7 +602,7 @@ class ArcWelderPlugin(
                 "compression_percent": progress["compression_percent"],
                 "source_filename": self.preprocessing_job_source_file_path,
                 "target_filename": self.preprocessing_job_target_file_name,
-                "preprocessing_job_guid": self.preprocessing_job_guid
+                "preprocessing_job_guid": self.preprocessing_job_guid,
             }
             self._plugin_manager.send_plugin_message(self._identifier, data)
             time.sleep(0.01)
@@ -640,13 +610,13 @@ class ArcWelderPlugin(
         return not self.is_cancelled
 
     def preprocessing_cancelled(self, path, preprocessor_args):
-        message = "Preprocessing has been cancelled for '{0}'.".format(path)
+        message = f"Preprocessing has been cancelled for '{path}'."
         data = {
             "message_type": "preprocessing-cancelled",
             "source_filename": self.preprocessing_job_source_file_path,
             "target_filename": self.preprocessing_job_target_file_name,
             "preprocessing_job_guid": self.preprocessing_job_guid,
-            "message": message
+            "message": message,
         }
         self._plugin_manager.send_plugin_message(self._identifier, data)
 
@@ -658,13 +628,13 @@ class ArcWelderPlugin(
             new_path, new_name, metadata = self.save_preprocessed_file(
                 path, preprocessor_args, results, additional_metadata
             )
-        except TargetFileSaveError as e:
+        except TargetFileSaveError:
             data = {
                 "message_type": "preprocessing-failed",
                 "source_filename": self.preprocessing_job_source_file_path,
                 "target_filename": self.preprocessing_job_target_file_name,
                 "preprocessing_job_guid": self.preprocessing_job_guid,
-                "message": 'Unable to save the target file.  A file with the same name may be currently printing.'
+                "message": "Unable to save the target file.  A file with the same name may be currently printing.",
             }
             self._plugin_manager.send_plugin_message(self._identifier, data)
             return
@@ -696,14 +666,12 @@ class ArcWelderPlugin(
                 "arc_welder_statistics": metadata,
                 "path": new_path,
                 "name": new_name,
-                "origin": FileDestinations.LOCAL
+                "origin": FileDestinations.LOCAL,
             }
             self._plugin_manager.send_plugin_message(self._identifier, data)
 
     def preprocessing_completed(self):
-        data = {
-            "message_type": "preprocessing-complete"
-        }
+        data = {"message_type": "preprocessing-complete"}
         self.preprocessing_job_guid = None
         self.preprocessing_job_source_file_path = None
         self.preprocessing_job_target_file_name = None
@@ -715,12 +683,11 @@ class ArcWelderPlugin(
             "source_filename": self.preprocessing_job_source_file_path,
             "target_filename": self.preprocessing_job_target_file_name,
             "preprocessing_job_guid": self.preprocessing_job_guid,
-            "message": message
+            "message": message,
         }
         self._plugin_manager.send_plugin_message(self._identifier, data)
 
     def on_event(self, event, payload):
-
         # Need to use file added event to catch uploads and other non-upload methods of adding a file.
         if event == Events.FILE_ADDED:
             if not self._enabled or not self._auto_pre_processing_enabled:
@@ -733,9 +700,7 @@ class ArcWelderPlugin(
             if path == self.preprocessing_job_source_file_path or name == self.preprocessing_job_target_file_name:
                 return
 
-            if not octoprint.filemanager.valid_file_type(
-                    path, type="gcode"
-            ):
+            if not octoprint.filemanager.valid_file_type(path, type="gcode"):
                 return
 
             if not target == FileDestinations.LOCAL:
@@ -751,7 +716,7 @@ class ArcWelderPlugin(
 
     def get_additional_metadata(self, metadata):
         # list of supported metadata
-        supported_metadata_keys = ['thumbnail', 'thumbnail_src']
+        supported_metadata_keys = ["thumbnail", "thumbnail_src"]
         additional_metadata = {}
         # Create the additional metadata from the supported keys
         for key in supported_metadata_keys:
@@ -764,19 +729,21 @@ class ArcWelderPlugin(
         # file = self._file_manager.get_file(FileDestinations.LOCAL, path)
         if self._get_is_printing():
             self.send_notification_toast(
-                "warning", "Arc-Welder: Unable to Process",
+                "warning",
+                "Arc-Welder: Unable to Process",
                 "Cannot preprocess gcode while a print is in progress because print quality may be affected.  The "
                 "gcode will be processed as soon as the print has completed.",
                 True,
-                key="unable_to_process", close_keys=["unable_to_process"]
+                key="unable_to_process",
+                close_keys=["unable_to_process"],
             )
 
         logger.info("Received a new gcode file for processing.  FileName: %s.", path)
         path_on_disk = self._file_manager.path_on_disk(FileDestinations.LOCAL, path)
 
         # make sure the path starts with a / for compatibility
-        if path[0] != '/':
-            path = '/' + path
+        if path[0] != "/":
+            path = "/" + path
 
         preprocessor_args = self.get_preprocessor_arguments(path_on_disk)
         self._processing_queue.put((path, preprocessor_args, additional_metadata, is_manual_request))
@@ -792,14 +759,12 @@ class ArcWelderPlugin(
                 dict(
                     request_callback=self.download_file_request,
                     as_attachment=True,
-                    access_validation=util.tornado.validation_chain(*admin_validation_chain)
-                )
-
+                    access_validation=util.tornado.validation_chain(*admin_validation_chain),
+                ),
             )
         ]
 
-        # ~~ software update hook
-
+    # ~~ software update hook
 
     arc_welder_update_info = dict(
         displayName="Arc Welder: Anti-Stutter",
@@ -809,25 +774,23 @@ class ArcWelderPlugin(
         repo="ArcWelderPlugin",
         pip="https://github.com/FormerLurker/ArcWelderPlugin/archive/{target_version}.zip",
         stable_branch=dict(branch="master", commitish=["master"], name="Stable"),
-        release_compare='custom',
+        release_compare="custom",
         prerelease_branches=[
             dict(
                 branch="rc/maintenance",
                 commitish=["master", "rc/maintenance"],  # maintenance RCs (include master)
-                name="Maintenance RCs"
+                name="Maintenance RCs",
             ),
             dict(
                 branch="rc/devel",
                 commitish=["master", "rc/maintenance", "rc/devel"],  # devel & maintenance RCs (include master)
-                name="Devel RCs"
-            )
+                name="Devel RCs",
+            ),
         ],
     )
 
     def get_release_info(self):
-        return dict(
-            arc_welder=ArcWelderPlugin.arc_welder_update_info
-        )
+        return dict(arc_welder=ArcWelderPlugin.arc_welder_update_info)
 
     def get_update_information(self):
         # moved most of the heavy lifting to get_latest, since I need to do a custom version compare.
@@ -835,29 +798,27 @@ class ArcWelderPlugin(
         return self.get_release_info()
 
 
-__plugin_pythoncompat__ = ">=3.7,<4"
-__plugin_implementation__ = ArcWelderPlugin()
-
-
-def __plugin_load__():
-    global __plugin_implementation__
-    __plugin_implementation__ = ArcWelderPlugin()
-    global __plugin_hooks__
-    __plugin_hooks__ = {
-        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-        "octoprint.server.http.routes": __plugin_implementation__.register_custom_routes
-    }
-
-
 class ArcWelderLargeResponseHandler(LargeResponseHandler):
-
-    def initialize(self, request_callback, as_attachment=False, access_validation=None, default_filename=None,
-        on_before_request=None, on_after_request=None
+    def initialize(
+        self,
+        request_callback,
+        as_attachment=False,
+        access_validation=None,
+        default_filename=None,
+        on_before_request=None,
+        on_after_request=None,
     ):
-        super(ArcWelderLargeResponseHandler, self).initialize(
-            '', default_filename=default_filename, as_attachment=as_attachment, allow_client_caching=False,
-            access_validation=access_validation, path_validation=None, etag_generator=None,
-            name_generator=self.name_generator, mime_type_guesser=None)
+        super().initialize(
+            "",
+            default_filename=default_filename,
+            as_attachment=as_attachment,
+            allow_client_caching=False,
+            access_validation=access_validation,
+            path_validation=None,
+            etag_generator=None,
+            name_generator=self.name_generator,
+            mime_type_guesser=None,
+        )
         self.download_file_name = None
         self._before_request_callback = on_before_request
         self._request_callback = request_callback
@@ -890,12 +851,20 @@ class ArcWelderLargeResponseHandler(LargeResponseHandler):
         return tornado.web.StaticFileHandler.get(self, full_path, include_body=include_body)
 
     def on_finish(self):
-            if self.after_request_internal:
-                self.after_request_internal(**self.after_request_internal_args)
+        if self.after_request_internal:
+            self.after_request_internal(**self.after_request_internal_args)
 
-            if self._after_request_callback:
-                self._after_request_callback()
+        if self._after_request_callback:
+            self._after_request_callback()
 
 
 class TargetFileSaveError(Exception):
     pass
+
+
+__plugin_pythoncompat__ = ">=3.7,<4"
+__plugin_implementation__ = ArcWelderPlugin()
+__plugin_hooks__ = {
+    "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+    "octoprint.server.http.routes": __plugin_implementation__.register_custom_routes,
+}

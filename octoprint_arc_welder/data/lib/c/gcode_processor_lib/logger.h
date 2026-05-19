@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -57,13 +57,12 @@ public:
 	virtual bool is_log_level_enabled(const int logger_type, const int log_level);
 protected:
 	virtual void create_log_message(const int logger_type, const int log_level, const std::string& message, std::string& output);
-	
+
 	bool loggers_created_;
 private:
 	std::string* logger_names_;
 	int * logger_levels_;
 	int num_loggers_;
 	static void get_timestamp(std::string &timestamp);
-	
-};
 
+};

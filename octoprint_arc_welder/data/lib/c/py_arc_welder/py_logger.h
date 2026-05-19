@@ -17,7 +17,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -37,7 +37,7 @@
 #include "python_helpers.h"
 #include <iostream>
 enum py_loggers { GCODE_CONVERSION };
-	
+
 class py_logger : public logger {
 public:
 	py_logger(std::vector<std::string> names, std::vector<int> levels);
@@ -63,4 +63,3 @@ private:
 	PyObject* py_critical_function_name;
 	PyObject* py_get_effective_level_function_name;
 };
-

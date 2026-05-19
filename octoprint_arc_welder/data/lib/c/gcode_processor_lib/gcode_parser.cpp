@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@ gcode_parser::gcode_parser()
 	// doesn't work in the ancient version of c++ I am forced to use :(
 	// or at least I don't know how to us a newer one with python 2.7
 	// help...
-	/* 
+	/*
 	std::vector<std::string> text_only_function_names = { "M117" }; // "M117" is an example of a command that would work here.
 
 	std::vector<std::string> parsable_command_names = {
@@ -183,7 +183,7 @@ bool gcode_parser::try_parse_gcode(const char * gcode, parsed_command & command,
 
 		if (command.command.length() > 0 && command.command == "@OCTOLAPSE")
 		{
-			
+
 			parsed_command_parameter octolapse_parameter;
 
 			if (!try_extract_octolapse_parameter(&p, &octolapse_parameter))
@@ -232,7 +232,7 @@ bool gcode_parser::try_parse_gcode(const char * gcode, parsed_command & command,
 				{
 					command.parameters.push_back(param);
 				}
-					
+
 			}
 			else
 			{
@@ -251,12 +251,12 @@ bool gcode_parser::try_parse_gcode(const char * gcode, parsed_command & command,
 			}
 		}
 	}
-		
+
 	try_extract_comment(&p_gcode, &(command.comment));
-		
+
 
 	return command.is_known_command;
-	
+
 }
 
 bool gcode_parser::try_extract_gcode_command(char ** p_p_gcode, std::string * p_command)
@@ -348,7 +348,7 @@ bool gcode_parser::try_extract_gcode_command(char ** p_p_gcode, std::string * p_
 			}
 			// create a char to hold the t parameter
 			char t_param = '\0';
-			// 
+			//
 			if (*p_t >= 'a' && *p_t <= 'z')
 				t_param = *p_t - 32;
 			else
@@ -390,7 +390,7 @@ bool gcode_parser::try_extract_at_command(char ** p_p_gcode, std::string * p_com
 			(*p_command).push_back(*p++ - 32);
 		else
 			(*p_command).push_back(*p++);
-		
+
 	}
 	*p_p_gcode = p;
 	return found_command;
@@ -418,7 +418,7 @@ bool gcode_parser::try_extract_unsigned_long(char ** p_p_gcode, unsigned long * 
 		*p_value = r;
 		*p_p_gcode = p;
 	}
-	
+
 	return found_numbers;
 }
 
@@ -456,7 +456,7 @@ bool gcode_parser::try_extract_double(char ** p_p_gcode, double * p_double) cons
 			++p;
 	}
 	// skip any additional whitespace
-	
+
 
 	while ((*p >= '0' && *p <= '9') || *p == ' ') {
 		if (*p != ' ')
@@ -490,7 +490,7 @@ bool gcode_parser::try_extract_double(char ** p_p_gcode, double * p_double) cons
 		*p_double = r;
 		*p_p_gcode = p;
 	}
-	
+
 	return found_numbers;
 }
 
@@ -499,7 +499,7 @@ bool gcode_parser::try_extract_text_parameter(char ** p_p_gcode, std::string * p
 	// Skip initial whitespace
 	//std::cout << "GcodeParser.try_extract_parameter - Trying to extract a text parameter from  " << *p_p_gcode << "\r\n";
 	char * p = *p_p_gcode;
-	
+
 	// Ignore Leading Spaces
 	while (*p == ' ')
 	{
@@ -583,7 +583,7 @@ bool gcode_parser::try_extract_parameter(char ** p_p_gcode, parsed_command_param
 	{
 		p++;
 	}
-	
+
 	// Deal with case sensitivity
 	if (*p >= 'a' && *p <= 'z')
 		parameter->name = *p++ - 32;
@@ -684,7 +684,7 @@ bool gcode_parser::try_extract_comment(char ** p_p_gcode, std::string * p_commen
 	{
 		if (*p != '\r' && *p != '\n')
 		{
-			// Dont't add line breaks
+			// Don't add line breaks
 			(*p_comment).push_back(*p++);
 		}
 		else

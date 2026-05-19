@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ std::string position::to_string(bool rewrite, bool verbose, std::string addition
 	{
 		return command.rewrite_gcode_string();
 	}
-	
+
 	return command.to_string();
 }
 
@@ -56,7 +56,7 @@ void position::set_xyz_axis_mode(const std::string& xyz_axis_default_mode)
 		is_relative_null = false;
 	}
 
-	
+
 }
 
 void position::set_e_axis_mode(const std::string& e_axis_default_mode)
@@ -72,7 +72,7 @@ void position::set_e_axis_mode(const std::string& e_axis_default_mode)
 		is_extruder_relative_null = false;
 	}
 
-	
+
 }
 
 void position::set_units_default(const std::string&	units_default)
@@ -92,7 +92,7 @@ void position::set_units_default(const std::string&	units_default)
 bool position::can_take_snapshot()
 {
 	return (
-		!is_relative_null && 
+		!is_relative_null &&
 		!is_extruder_relative_null &&
 		has_definite_position &&
 		is_printer_primed &&
@@ -160,7 +160,7 @@ position::position()
 }
 
 position::position(int extruder_count)
-{ 
+{
 	has_been_deleted = false;
 	is_empty = true;
 	feature_type_tag = 0;
@@ -215,7 +215,7 @@ position::position(int extruder_count)
 	current_tool = 0;
 	p_extruders = NULL;
 	set_num_extruders(extruder_count);
-	
+
 }
 
 position::position(const position &pos)
@@ -347,8 +347,8 @@ position& position::operator=(const position& pos) {
 	{
 		set_num_extruders(pos.num_extruders);
 	}
-	
-	
+
+
 	for (int index = 0; index < pos.num_extruders; index++)
 	{
 		p_extruders[index] = pos.p_extruders[index];
@@ -425,8 +425,8 @@ void position::reset_state()
 	has_position_changed = false;
 	has_received_home_command = false;
 	gcode_ignored = true;
-	
-	//is_in_bounds = true; // I dont' think we want to reset this every time since it's only calculated if the current position
+
+	//is_in_bounds = true; // I don't think we want to reset this every time since it's only calculated if the current position
 	// changes.
 	p_extruders[current_tool].e_relative = 0;
 	z_relative = 0;

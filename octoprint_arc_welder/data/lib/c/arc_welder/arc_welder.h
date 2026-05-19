@@ -19,7 +19,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -125,7 +125,7 @@ struct source_target_segment_statistics {
 	}
 
 	std::string str() const {
-		
+
 		//if (p_logger_ != NULL) p_logger_->log(logger_type_, VERBOSE, "Building Segment Statistics.");
 
 		std::stringstream output_stream;
@@ -243,7 +243,7 @@ struct source_target_segment_statistics {
 				output_stream << std::setw(mm_col_size) << std::internal << min_mm_string;
 				// Add the min/max label
 				output_stream << std::setw(min_max_label_col_size) << " to ";
-				// Add the 'max' column				
+				// Add the 'max' column
 				output_stream << std::setw(mm_col_size) << std::internal << max_mm_string;
 			}
 			// Add the source count
@@ -279,7 +279,7 @@ struct source_target_segment_statistics {
 			output_stream << std::setw(totals_row_label_size) << std::right << "Total distance source:";
 			output_stream << std::setw(table_width - totals_row_label_size) << std::setfill('.') << std::right << total_source_distance_string << "\n" << std::setfill(' ');
 
-			// Format the total target distance string			
+			// Format the total target distance string
 			std::string total_target_distance_string;
 			format_stream.str(std::string());
 			format_stream << std::fixed << std::setprecision(max_precision) << total_length_target << "mm";
@@ -360,7 +360,7 @@ struct arc_welder_progress {
 	}
 };
 
-// define the progress callback type 
+// define the progress callback type
 typedef bool(*progress_callback)(arc_welder_progress, logger* p_logger, int logger_type);
 
 struct arc_welder_results {

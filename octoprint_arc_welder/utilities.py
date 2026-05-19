@@ -1,4 +1,3 @@
-# coding=utf-8
 # #################################################################################
 # Arc Welder: Anti-Stutter
 #
@@ -24,8 +23,8 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-import os
 import ntpath
+import os
 
 
 def remove_extension_from_filename(filename):
@@ -56,6 +55,7 @@ def dict_encode(d):
             return dict_encode(s)
 
         if isinstance(s, bytes):
-            return str(s, errors='ignore', encoding='utf-8')
+            return str(s, errors="ignore", encoding="utf-8")
         return s
+
     return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in d.iteritems()}

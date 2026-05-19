@@ -19,7 +19,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ public:
 	virtual bool try_add_point(point p, double e_relative);
 	std::string get_shape_gcode_absolute(double e, double f);
 	std::string get_shape_gcode_relative(double f);
-	
+
 	virtual bool is_shape() const;
 	point pop_front(double e_relative);
 	point pop_back(double e_relative);
@@ -56,4 +56,3 @@ private:
 	circle arc_circle_;
 	double max_radius_mm_;
 };
-

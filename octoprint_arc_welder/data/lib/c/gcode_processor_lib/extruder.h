@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -46,4 +46,3 @@ struct extruder
 	bool is_deretracted;
 	double get_offset_e() const;
 };
-

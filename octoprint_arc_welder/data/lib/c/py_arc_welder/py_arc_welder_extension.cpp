@@ -17,7 +17,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "py_arc_welder_extension.h"
@@ -172,20 +172,20 @@ extern "C"
 			&py_convert_file_args
 			))
 		{
-			std::string message = "py_gcode_arc_converter.ConvertFile - Cound not extract the parameters dictionary.";
+			std::string message = "py_gcode_arc_converter.ConvertFile - Could not extract the parameters dictionary.";
 			p_py_logger->log_exception(GCODE_CONVERSION, message);
 			return NULL;
 		}
 
 		py_gcode_arc_args args;
 		PyObject* py_progress_callback = NULL;
-		
+
 		if (!ParseArgs(py_convert_file_args, args, &py_progress_callback))
 		{
 			return NULL;
 		}
 		p_py_logger->set_log_level_by_value(args.log_level);
-		
+
 
 		std::string message = "py_gcode_arc_converter.ConvertFile - Beginning Arc Conversion.";
 		p_py_logger->log(GCODE_CONVERSION, INFO, message);
@@ -301,11 +301,10 @@ static bool ParseArgs(PyObject* py_args, py_gcode_arc_args& args, PyObject** py_
 		p_py_logger->log_exception(GCODE_CONVERSION, message);
 		return false;
 	}
-	
+
 	int log_level_value = static_cast<int>(PyLong_AsLong(py_log_level));
 	// determine the log level as an index rather than as a value
 	args.log_level = p_py_logger->get_log_level_for_value(log_level_value);
-	
+
 	return true;
 }
-

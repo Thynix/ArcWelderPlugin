@@ -66,6 +66,18 @@ sources = [
     "octoprint_arc_welder/data/lib/c/py_arc_welder/python_helpers.cpp",
 ]
 
+[tool.codespell]
+ignore-words = '.codespell_ignore_words'
+skip = 'octoprint_arc_welder/static/js/showdown.min.js'
+
+[tool.ruff]
+line-length = 120
+fix = true
+target-version = "py37"
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
 [tool.setuptools.packages.find]
 include = [
     "octoprint_arc_welder",

@@ -17,7 +17,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "py_arc_welder.h"
@@ -68,7 +68,7 @@ PyObject* py_arc_welder::build_py_progress(const arc_welder_progress& progress)
 		return NULL;
 	}
 	// Due to a CRAZY issue, I have to add this item after building the py_progress object,
-	// else it crashes in python 2.7.  Looking forward to retiring this backwards 
+	// else it crashes in python 2.7.  Looking forward to retiring this backwards
 	// compatible code...
 	PyDict_SetItemString(py_progress, "segment_statistics_text", pyMessage);
 	return py_progress;
@@ -87,7 +87,7 @@ bool py_arc_welder::on_progress_(const arc_welder_progress& progress)
 		Py_DECREF(py_dict);
 		return false;	// This was returning true, I think it was a typo.  Making a note just in case.
 	}
-		
+
 	PyGILState_STATE gstate = PyGILState_Ensure();
 	PyObject* pContinueProcessing = PyObject_CallObject(py_progress_callback_, func_args);
 	Py_DECREF(func_args);
@@ -98,7 +98,7 @@ bool py_arc_welder::on_progress_(const arc_welder_progress& progress)
 		// no return value was supply, assume true, but without decrefing pContinueProcessing
 		continue_processing = true;
 	}
-	else 
+	else
 	{
 		if (pContinueProcessing == Py_None)
 		{

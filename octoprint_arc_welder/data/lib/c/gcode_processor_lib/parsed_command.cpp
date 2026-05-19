@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@
 #include <stdlib.h>
 parsed_command::parsed_command()
 {
-	
+
 	command.reserve(8);
 	gcode.reserve(128);
 	comment.reserve(128);
@@ -37,7 +37,7 @@ parsed_command::parsed_command()
 
 void parsed_command::clear()
 {
-	
+
 	command.clear();
 	gcode.clear();
 	comment.clear();
@@ -49,7 +49,7 @@ void parsed_command::clear()
 std::string parsed_command::rewrite_gcode_string()
 {
 	std::stringstream stream;
-	
+
 	// add command
 	stream << command;
 	if (parameters.size() > 0)
@@ -57,7 +57,7 @@ std::string parsed_command::rewrite_gcode_string()
 		for (unsigned int index = 0; index < parameters.size(); index++)
 		{
 			parsed_command_parameter p = parameters[index];
-			
+
 			if (p.name == "E")
 			{
 				stream << std::fixed << std::setprecision(5);
@@ -70,7 +70,7 @@ std::string parsed_command::rewrite_gcode_string()
 			{
 				stream << std::fixed << std::setprecision(3);
 			}
-			
+
 			stream << " " << p.name;
 			switch (p.value_type)
 			{
@@ -101,4 +101,3 @@ std::string parsed_command::to_string()
 	}
 	return gcode;
 }
-

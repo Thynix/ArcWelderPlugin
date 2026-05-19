@@ -17,7 +17,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -39,7 +39,7 @@ public:
 		py_progress_callback_ = py_progress_callback;
 	}
 	virtual ~py_arc_welder() {
-		
+
 	}
 	static PyObject* build_py_progress(const arc_welder_progress& progress);
 protected:
@@ -47,4 +47,3 @@ protected:
 private:
 	PyObject* py_progress_callback_;
 };
-

@@ -1,4 +1,3 @@
-# coding=utf-8
 # #################################################################################
 # Arc Welder: Anti-Stutter
 #
@@ -24,22 +23,25 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-from __future__ import unicode_literals
-import logging
 import datetime as datetime
+import logging
 import os
+
 from octoprint.logging.handlers import (
     AsyncLogHandlerMixin,
     CleaningTimedRotatingFileHandler,
 )
+
 
 class Singleton(type):
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
+
+
 # custom log level - VERBOSE
 VERBOSE = 5
 DEBUG = logging.DEBUG
@@ -61,17 +63,13 @@ logging.Logger.verbose = verbose
 
 def format_log_time(time_seconds):
     log_time = datetime.datetime.fromtimestamp(time_seconds)
-    t = datetime.datetime.strftime(
-        log_time, "%Y-%m-%d %H:%M:%S,{0:03}".format(int(log_time.microsecond / 1000))
-    )
+    t = datetime.datetime.strftime(log_time, f"%Y-%m-%d %H:%M:%S,{int(log_time.microsecond / 1000):03}")
     return t
 
 
 class ArcWelderFormatter(logging.Formatter):
-    def __init__(
-        self, fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt=None
-    ):
-        super(ArcWelderFormatter, self).__init__(fmt=fmt, datefmt=datefmt)
+    def __init__(self, fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt=None):
+        super().__init__(fmt=fmt, datefmt=datefmt)
 
     def formatTime(self, record, datefmt=None):
         ct = self.converter(record.created)
@@ -84,12 +82,12 @@ class ArcWelderFormatter(logging.Formatter):
 
 class ArcWelderConsoleHandler(logging.StreamHandler, AsyncLogHandlerMixin):
     def __init__(self, *args, **kwargs):
-        super(ArcWelderConsoleHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class ArcWelderFileHandler(CleaningTimedRotatingFileHandler, AsyncLogHandlerMixin):
     def __init__(self, *args, **kwargs):
-        super(ArcWelderFileHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def delete_all_backups(self):
         # clean up old files on handler start
@@ -100,7 +98,7 @@ class ArcWelderFileHandler(CleaningTimedRotatingFileHandler, AsyncLogHandlerMixi
         self.backupCount = backup_count
 
 
-class LoggingConfigurator(object, metaclass=Singleton):
+class LoggingConfigurator(metaclass=Singleton):
     BACKUP_COUNT = 3
 
     def __init__(self, root_logger_name, log_entry_prefix, log_file_prefix):
@@ -136,7 +134,7 @@ class LoggingConfigurator(object, metaclass=Singleton):
             return self._root_logger
 
         if name.startswith(self._log_file_prefix):
-            name = name[len(self._log_file_prefix):]
+            name = name[len(self._log_file_prefix) :]
 
         full_name = "arc_welder." + name
 
@@ -154,9 +152,7 @@ class LoggingConfigurator(object, metaclass=Singleton):
             self._console_handler = None
 
     def _add_file_handler(self, log_file_path, log_level):
-        self._file_handler = ArcWelderFileHandler(
-            log_file_path, when="D", backupCount=LoggingConfigurator.BACKUP_COUNT
-        )
+        self._file_handler = ArcWelderFileHandler(log_file_path, when="D", backupCount=LoggingConfigurator.BACKUP_COUNT)
         self._file_handler.setFormatter(self.logging_formatter)
         self._file_handler.setLevel(log_level)
         self._root_logger.addHandler(self._file_handler)
@@ -205,9 +201,8 @@ class LoggingConfigurator(object, metaclass=Singleton):
         if log_to_console:
             self._add_console_handler(logging.NOTSET)
         for logger_full_name in self.child_loggers:
-
             if logger_full_name.startswith(self._log_entry_prefix):
-                logger_name = logger_full_name[len(self._log_entry_prefix):]
+                logger_name = logger_full_name[len(self._log_entry_prefix) :]
             else:
                 logger_name = logger_full_name
             if logging_settings is not None:

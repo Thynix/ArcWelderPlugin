@@ -71,7 +71,7 @@ These settings control the main aspects of the plugin and how your GCode file wi
   * *Automatic and Manual Processing* - Newly uploaded files will automatically be converted **and** you will be able to compress files by clicking the compress button in the file manager.
 
 The default setting is *Automatic and Manual Processing*.
-  
+
 #### Output File Settings
 Here you can control how *Arc Welder* will handle the output file.  It can either overwrite the source GCode file completely, or you can create a new file with a different name.
 

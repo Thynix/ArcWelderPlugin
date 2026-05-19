@@ -19,7 +19,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +81,7 @@ bool segmented_arc::is_shape() const
 
 bool segmented_arc::try_add_point(point p, double e_relative)
 {
-	
+
 	bool point_added = false;
 	// if we don't have enough segnemts to check the shape, just add
 	if (points_.count() > get_max_segments() - 1)
@@ -109,9 +109,9 @@ bool segmented_arc::try_add_point(point p, double e_relative)
 			//std::cout << " failed - no distance change.\n";
 			return false;
 		}
-		
+
 	}
-	
+
 	if (points_.count() < get_min_segments() - 1)
 	{
 		point_added = true;
@@ -127,7 +127,7 @@ bool segmented_arc::try_add_point(point p, double e_relative)
 				original_shape_length_ -= distance;
 			}
 		}
-		
+
 
 	}
 	else
@@ -137,7 +137,7 @@ bool segmented_arc::try_add_point(point p, double e_relative)
 	}
 	if (point_added)
 	{
-		
+
 		if (points_.count() > 1)
 		{
 			// Only add the relative distance to the second point on up.
@@ -167,14 +167,14 @@ bool segmented_arc::try_add_point_internal_(point p, double pd)
 	// If we don't have enough points (at least min_segments) return false
 	if (points_.count() < get_min_segments() - 1)
 		return false;
-	
+
 	// Create a test circle
 	circle test_circle;
 	bool circle_created;
 	// Find a point in the middle of our list for p2
 	int mid_point_index = ((points_.count() - 2) / 2)+1;
 	circle_created = circle::try_create_circle(points_[0], points_[mid_point_index], p, max_radius_mm_, test_circle);
-	
+
 	if (circle_created)
 	{
 
@@ -185,7 +185,7 @@ bool segmented_arc::try_add_point_internal_(point p, double pd)
 		points_.push_back(p);
 		double previous_shape_length = original_shape_length_;
 		original_shape_length_ += pd;
-		
+
 		circle_fits_points = does_circle_fit_points_(test_circle);
 		if (circle_fits_points)
 		{
@@ -196,17 +196,17 @@ bool segmented_arc::try_add_point_internal_(point p, double pd)
 			points_.pop_back();
 			original_shape_length_ = previous_shape_length;
 		}
-		
+
 		// Only set is_shape if it goes from false to true
 		if (!is_shape())
 			set_is_shape(circle_fits_points);
-		
+
 		return circle_fits_points;
 	}
-	
+
 	//std::cout << " failed - could not create a circle from the points.\n";
 	return false;
-	
+
 }
 
 bool segmented_arc::does_circle_fit_points_(circle& c) const
@@ -217,11 +217,11 @@ bool segmented_arc::does_circle_fit_points_(circle& c) const
 
 	double distance_from_center;
 	double difference_from_radius;
-	
+
 	// Check the endpoints to make sure they fit the current circle
 	for (int index = 1; index < points_.count(); index++)
 	{
-		// Make sure the length from the center of our circle to the test point is 
+		// Make sure the length from the center of our circle to the test point is
 		// at or below our max distance.
 		distance_from_center = utilities::get_cartesian_distance(points_[index].x, points_[index].y, c.center.x, c.center.y);
 		double difference_from_radius = std::abs(distance_from_center - c.radius);
@@ -231,7 +231,7 @@ bool segmented_arc::does_circle_fit_points_(circle& c) const
 			return false;
 		}
 	}
-	
+
 	// Check the point perpendicular from the segment to the circle's center, if any such point exists
 	for (int index = 0; index < points_.count() - 1; index++)
 	{
@@ -246,16 +246,16 @@ bool segmented_arc::does_circle_fit_points_(circle& c) const
 				return false;
 			}
 		}
-		
+
 	}
-	
+
 	// get the current arc and compare the total length to the original length
 	arc a;
 	return arc::try_create_arc(c, points_, original_shape_length_, resolution_mm_, a);
-	
+
 }
 
-bool segmented_arc::try_get_arc(arc & target_arc)																								 
+bool segmented_arc::try_get_arc(arc & target_arc)
 {
 	//int mid_point_index = ((points_.count() - 2) / 2) + 1;
 	//return arc::try_create_arc(arc_circle_, points_[0], points_[mid_point_index], points_[points_.count() - 1], original_shape_length_, resolution_mm_, target_arc);
@@ -282,18 +282,18 @@ std::string segmented_arc::get_shape_gcode_relative(double f)
 
 std::string segmented_arc::get_shape_gcode_(bool has_e, double e, double f) const
 {
-	
+
 	char buf[20];
 	std::string gcode;
 	arc c;
 	arc::try_create_arc(arc_circle_, points_, original_shape_length_, resolution_mm_, c);
-	
+
 	double i = c.center.x - c.start_point.x;
 	double j = c.center.y - c.start_point.y;
 	// Here is where the performance part kicks in (these are expensive calls) that makes things a bit ugly.
 	// there are a few cases we need to take into consideration before choosing our sprintf string
 	// create the XYZ portion
-	
+
 	if (utilities::less_than(c.angle_radians, 0))
 	{
 		gcode = "G2";
@@ -301,7 +301,7 @@ std::string segmented_arc::get_shape_gcode_(bool has_e, double e, double f) cons
 	else
 	{
 		gcode = "G3";
-	
+
 	}
 	// Add X, Y, I and J
 	gcode += " X";
@@ -315,7 +315,7 @@ std::string segmented_arc::get_shape_gcode_(bool has_e, double e, double f) cons
 
 	gcode += " J";
 	gcode += utilities::to_string(j, 3, buf);
-	
+
 	// Add E if it appears
 	if (has_e)
 	{
@@ -333,4 +333,3 @@ std::string segmented_arc::get_shape_gcode_(bool has_e, double e, double f) cons
 	return gcode;
 
 }
-

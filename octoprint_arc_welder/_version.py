@@ -181,9 +181,7 @@ def _get_short():
 
 
 def _get_tag():
-    return os.environ.get(
-        "GIT_VERSION_TAG", _git("describe", "--tags", "--abbrev=0", "--always")
-    )
+    return os.environ.get("GIT_VERSION_TAG", _git("describe", "--tags", "--abbrev=0", "--always"))
 
 
 def _get_branch():
@@ -335,11 +333,7 @@ def _get_data_from_keywords():
         tags = {r for r in refs if re.search(r"\d", r)}
     tag = sorted(tags)[0] if tags else None
 
-    branches = [
-        r
-        for r in refs
-        if not r.startswith("tag: ") and r != "HEAD" and not r.startswith("refs/")
-    ]
+    branches = [r for r in refs if not r.startswith("tag: ") and r != "HEAD" and not r.startswith("refs/")]
     branch = branches[0] if branches else None
 
     virtual_tag = None

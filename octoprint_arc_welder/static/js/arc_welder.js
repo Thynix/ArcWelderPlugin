@@ -860,4 +860,3 @@ $(function () {
         ["#tab_plugin_arc_welder_controls"]
     ]);
 });
-

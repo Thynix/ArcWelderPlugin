@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "utilities.h"
@@ -136,7 +136,7 @@ std::string utilities::to_string(int value)
 char * utilities::to_string(double value, unsigned short precision, char * str)
 {
 	char reversed_int[20];
-	
+
 	int char_count = 0, int_count = 0;
 	bool is_negative = false;
 	double integer_part, fractional_part;
@@ -230,7 +230,7 @@ std::istream& utilities::safe_get_line(std::istream& is, std::string& t)
 	}
 }
 
-std::string utilities::center(std::string input, int width) 
+std::string utilities::center(std::string input, int width)
 {
 	int input_width = input.length();
 	int difference = width - input_width;

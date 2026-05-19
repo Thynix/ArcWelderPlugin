@@ -17,7 +17,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -75,8 +75,3 @@ static void AtExit()
 {
 	if (p_py_logger != NULL) delete p_py_logger;
 }*/
-
-
-
-	
-

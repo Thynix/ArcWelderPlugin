@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +98,7 @@ gcode_position_args& gcode_position_args::operator=(const gcode_position_args& p
 	home_x_none = pos_args.home_x_none;
 	home_y_none = pos_args.home_y_none;
 	home_z_none = pos_args.home_z_none;
-	
+
 	priming_height = pos_args.priming_height;
 	minimum_layer_height = pos_args.minimum_layer_height;
 	height_increment = pos_args.height_increment;
@@ -119,7 +119,7 @@ gcode_position_args& gcode_position_args::operator=(const gcode_position_args& p
 	snapshot_y_max = pos_args.snapshot_y_max;
 	snapshot_z_min = pos_args.snapshot_z_min;
 	snapshot_z_max = pos_args.snapshot_z_max;
-	
+
 	default_extruder = pos_args.default_extruder;
 	zero_based_extruder = pos_args.zero_based_extruder;
 	num_extruders = pos_args.num_extruders;
@@ -288,7 +288,7 @@ gcode_position::gcode_position(gcode_position_args args)
 	{
 		current_extruder = args.num_extruders - 1;
 	}
-	
+
 	// copy the retraction lengths array
 	for (int index=0; index < args.num_extruders; index++)
 	{
@@ -453,7 +453,7 @@ position gcode_position::get_previous_position()
 
 position * gcode_position::get_position_ptr(int index)
 {
-	return &positions_[(cur_pos_ - index + position_buffer_size_) % position_buffer_size_]; 
+	return &positions_[(cur_pos_ - index + position_buffer_size_) % position_buffer_size_];
 }
 
 position * gcode_position::get_current_position_ptr()
@@ -469,14 +469,14 @@ position * gcode_position::get_previous_position_ptr()
 
 void gcode_position::update(parsed_command& command, const long file_line_number, const long gcode_number, const long file_position)
 {
-	
+
 	/*if (command.is_empty)
 	{
 		// process any comment sections
 		comment_processor_.update(command.comment);
 		return;
 	}*/
-	
+
 	add_position(command);
 	position * p_current_pos = get_current_position_ptr();
 	position * p_previous_pos = get_previous_position_ptr();
@@ -599,7 +599,7 @@ void gcode_position::update(parsed_command& command, const long file_line_number
 			// *************End Calculate extruder state*************
 		}
 
-		// Calcluate position restructions
+		// Calculate position restrictions
 		// TODO:  INCLUDE POSITION RESTRICTION CALCULATIONS!
 		// Set is_in_bounds_ to false if we're not in bounds, it will be true at this point
 		bool is_in_bounds = true;
@@ -635,7 +635,7 @@ void gcode_position::update(parsed_command& command, const long file_line_number
 		{
 			if (!p_current_pos->z_null)
 			{
-				// detect layer changes/ printer priming/last extrusion height and height 
+				// detect layer changes/ printer priming/last extrusion height and height
 				// Normally we would only want to use is_extruding, but we can also use is_deretracted if the layer is greater than 0
 				if (p_current_pos->get_current_extruder().is_extruding || (p_current_pos->layer >0 && p_current_pos->get_current_extruder().is_deretracted))
 				{
@@ -690,7 +690,7 @@ void gcode_position::update(parsed_command& command, const long file_line_number
 
 		}
 
-		
+
 
 	}
 }
@@ -717,7 +717,7 @@ position* gcode_position::undo_update(int num_updates)
 	{
 		p_undo_positions[index] = get_position(index);
 	}
-	
+
 	if (num_pos_ < num_updates)
 	{
 		num_pos_ = 0;
@@ -759,18 +759,18 @@ std::map<std::string, gcode_position::pos_function_type> gcode_position::get_gco
 }
 
 void gcode_position::update_position(
-	position* pos, 
-	const double x, 
-	const bool update_x, 
-	const double y, 
-	const bool update_y, 
-	const double z, 
-	const bool update_z, 
-	const double e, 
-	const bool update_e, 
-	const double f, 
-	const bool update_f, 
-	const bool force, 
+	position* pos,
+	const double x,
+	const bool update_x,
+	const double y,
+	const bool update_y,
+	const double z,
+	const bool update_z,
+	const double e,
+	const bool update_e,
+	const double f,
+	const bool update_f,
+	const bool force,
 	const bool is_g1_g0) const
 {
 	if (is_g1_g0)
@@ -859,7 +859,7 @@ void gcode_position::update_position(
 			}
 		}
 	}
-	
+
 	if (update_e)
 	{
 		if (!pos->is_extruder_relative_null)
@@ -1303,7 +1303,7 @@ void gcode_position::process_m208(position* pos, parsed_command& cmd)
 
 void gcode_position::process_m218(position* pos, parsed_command& cmd)
 {
-	
+
 	// Set hotend offsets
 	int t = 0;
 	bool has_t = false;
@@ -1317,7 +1317,7 @@ void gcode_position::process_m218(position* pos, parsed_command& cmd)
 	for (unsigned int index = 0; index < cmd.parameters.size(); index++)
 	{
 		parsed_command_parameter p_cur_param = cmd.parameters[index];
-		
+
 		if (p_cur_param.name == "T")
 		{
 			has_t = true;
@@ -1412,7 +1412,7 @@ void gcode_position::process_t(position* pos, parsed_command& cmd)
 			{
 				pos->current_tool = num_extruders_ - 1;
 			}
-			
+
 			break;
 		}
 	}

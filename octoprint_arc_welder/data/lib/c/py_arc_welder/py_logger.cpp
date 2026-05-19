@@ -17,7 +17,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "py_logger.h"
@@ -67,7 +67,7 @@ void py_logger::initialize_loggers()
 		PyErr_SetString(PyExc_ImportError, "Could not create LoggingConfigurator arguments.");
 		return;
 	}
-	
+
 	py_logging_configurator = PyObject_CallObject(py_logging_configurator_name, funcArgs);
 	std::cout << "Complete.\r\n";
 	Py_DECREF(funcArgs);
@@ -116,7 +116,7 @@ void py_logger::set_internal_log_levels(bool check_real_time)
 		Py_XDECREF(py_gcode_conversion_log_level);
 	}
 }
-	
+
 void py_logger::log_exception(const int logger_type, const std::string& message)
 {
 	log(logger_type, ERROR, message, true);
@@ -228,9 +228,9 @@ void py_logger::log(const int logger_type, const int log_level, const std::strin
 		{
 			std::cout << "Logging.arc_welder_log - null was returned from the specified logger and an error was detected.\r\n";
 			std::cout << "\tLog Level: " << log_level <<", Logger Type: " << logger_type << ", Message: " << message.c_str() << "\r\n";
-			
-			// I'm not sure what else to do here since I can't log the error.  I will print it 
-			// so that it shows up in the console, but I can't log it, and there is no way to 
+
+			// I'm not sure what else to do here since I can't log the error.  I will print it
+			// so that it shows up in the console, but I can't log it, and there is no way to
 			// return an error.
 			PyErr_Print();
 			PyErr_Clear();

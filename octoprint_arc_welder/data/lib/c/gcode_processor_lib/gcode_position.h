@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -191,7 +191,7 @@ private:
 
 	std::map<std::string, pos_function_type> gcode_functions_;
 	std::map<std::string, pos_function_type>::iterator gcode_functions_iterator_;
-	
+
 	std::map<std::string, pos_function_type> get_gcode_functions();
 	/// Process Gcode Command Functions
 	void process_g0_g1(position*, parsed_command&);

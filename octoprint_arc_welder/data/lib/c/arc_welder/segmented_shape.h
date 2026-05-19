@@ -19,7 +19,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -30,14 +30,14 @@
 //#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.001 // pass
 //#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.0001 // pass
 #define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.00001 // PASS
-//#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.000001 // pass 
+//#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.000001 // pass
 //#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.0000001 // fail
 //#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.0000005 // fail
 //#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.00000075 // fail
 //#define CIRCLE_GENERATION_A_ZERO_TOLERANCE 0.000000875 // fail
 
 
-#include <list> 
+#include <list>
 #include "utilities.h"
 #include "array_list.h"
 // The minimum theta value allowed between any two arc in order for an arc to be
@@ -71,7 +71,7 @@ struct segment
 {
 	segment()
 	{
-		
+
 	}
 	segment(point p_1, point p_2)
 	{
@@ -105,7 +105,7 @@ struct vector : point
 
 	double get_magnitude();
 	static double cross_product_magnitude(vector v1, vector v2);
-	
+
 };
 
 struct circle {
@@ -127,7 +127,7 @@ struct circle {
 
 	bool is_point_on_circle(point p, double resolution_mm);
 	static bool try_create_circle(point p1, point p2, point p3, double max_radius, circle& new_circle);
-	
+
 	double get_radians(const point& p1, const point& p2) const;
 
 	double get_polar_radians(const point& p1) const;
@@ -153,9 +153,9 @@ struct arc : circle
 		is_arc = false;
 		polar_start_theta = 0;
 		polar_end_theta = 0;
-			
+
 	}
-	
+
 	bool is_arc;
 	double length;
 	double angle_radians;
@@ -174,7 +174,7 @@ double distance_from_segment(segment s, point p);
 class segmented_shape
 {
 public:
-	
+
 	segmented_shape(int min_segments = DEFAULT_MIN_SEGMENTS, int max_segments = DEFAULT_MAX_SEGMENTS, double resolution_mm = DEFAULT_RESOLUTION_MM);
 	segmented_shape& operator=(const segmented_shape& pos);
 	virtual ~segmented_shape();
@@ -205,5 +205,5 @@ protected:
 private:
 	int min_segments_;
 	int max_segments_;
-	
+
 };

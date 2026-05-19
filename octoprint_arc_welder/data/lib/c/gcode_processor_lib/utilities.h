@@ -16,7 +16,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ public:
 	static bool greater_than_or_equal(double x, double y);
 	static bool less_than(double x, double y);
 	static bool less_than_or_equal(double x, double y);
-	
+
 	// custom tolerance functions
 	static bool is_zero(double x, double tolerance);
 	static bool is_equal(double x, double y, double tolerance);
@@ -63,7 +63,7 @@ public:
 	static bool get_temp_file_path_for_file(const std::string& file_path, std::string& temp_file_path);
 	static std::string create_uuid();
 
-	
+
 protected:
 	static const std::string WHITESPACE_;
 	static const char PATH_SEPARATOR_ =

@@ -19,7 +19,7 @@
 // GNU Affero General Public License for more details.
 //
 //
-// You can contact the author at the following email address: 
+// You can contact the author at the following email address:
 // FormerLurker@pm.me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -239,7 +239,7 @@ bool arc::try_create_arc(const circle& c, const point& start_point, const point&
 	double polar_start_theta = c.get_polar_radians(start_point);
 	double polar_mid_theta = c.get_polar_radians(mid_point);
 	double polar_end_theta = c.get_polar_radians(end_point);
-	
+
 	// variable to hold radians
 	double angle_radians = 0;
 	int direction = 0;  // 1 = counter clockwise, 2 = clockwise, 3 = unknown.
@@ -247,7 +247,7 @@ bool arc::try_create_arc(const circle& c, const point& start_point, const point&
 	if (polar_end_theta > polar_start_theta)
 	{
 		if (polar_start_theta < polar_mid_theta && polar_mid_theta < polar_end_theta) {
-			direction = 1;		
+			direction = 1;
 			angle_radians = polar_end_theta - polar_start_theta;
 		}
 		else if (
@@ -275,9 +275,9 @@ bool arc::try_create_arc(const circle& c, const point& start_point, const point&
 			angle_radians = polar_start_theta - polar_end_theta;
 		}
 	}
-	
+
 	if (direction == 0) return false;
-	
+
 	double arc_length = c.radius * angle_radians;
 	if (!utilities::is_equal(arc_length, approximate_length, resolution))
 		return false;
@@ -296,7 +296,7 @@ bool arc::try_create_arc(const circle& c, const point& start_point, const point&
 	target_arc.polar_start_theta = polar_start_theta;
 	target_arc.polar_end_theta = polar_end_theta;
 	return true;
-	
+
 }
 
 bool arc::try_create_arc(const circle& c, const array_list<point>& points, double approximate_length, double resolution, arc& target_arc)
@@ -308,7 +308,7 @@ bool arc::try_create_arc(const circle& c, const array_list<point>& points, doubl
 
 segmented_shape::segmented_shape(int min_segments, int max_segments, double resolution_mm) : points_(max_segments)
 {
-	
+
 	max_segments_ = max_segments;
 	resolution_mm_ = resolution_mm / 2.0; // divide by 2 because it is + or - 1/2 of the desired resolution.
 	e_relative_ = 0;
@@ -323,7 +323,7 @@ segmented_shape::segmented_shape(int min_segments, int max_segments, double reso
 
 segmented_shape::~segmented_shape()
 {
-	
+
 }
 
 bool segmented_shape::is_extruding()
@@ -336,11 +336,11 @@ segmented_shape& segmented_shape::operator=(const segmented_shape& obj)
 	if (obj.max_segments_ != max_segments_)
 	{
 		max_segments_ = obj.max_segments_;
-		
+
 		points_.resize(max_segments_);
 	}
 	points_.copy(obj.points_);
-		
+
 	original_shape_length_ = obj.original_shape_length_;
 	e_relative_ = obj.e_relative_;
 	is_shape_ = obj.is_shape_;
@@ -397,7 +397,7 @@ double segmented_shape::get_resolution_mm()
 void segmented_shape::set_resolution_mm(double resolution_mm)
 {
 	resolution_mm_ = resolution_mm;
-	
+
 }
 point segmented_shape::pop_front()
 {
