@@ -42,4 +42,4 @@ def dict_encode(d):
             return str(s, errors="ignore", encoding="utf-8")
         return s
 
-    return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in d.iteritems()}
+    return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in d.items()}
