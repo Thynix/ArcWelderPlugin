@@ -729,7 +729,7 @@ class ArcWelderPlugin(
 
     def register_custom_routes(self, server_routes, *args, **kwargs):
         admin_validation_chain = [
-            util.tornado.access_validation_factory(app, util.flask.admin_validator),
+            util.tornado.access_validation_factory(app, util.flask.permission_validator, permissions.Permissions.ADMIN),
         ]
         return [
             (
