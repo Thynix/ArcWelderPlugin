@@ -835,7 +835,7 @@ class ArcWelderPlugin(
         return self.get_release_info()
 
 
-__plugin_pythoncompat__ = ">=2.7,<4"
+__plugin_pythoncompat__ = ">=3.7,<4"
 __plugin_implementation__ = ArcWelderPlugin()
 
 
