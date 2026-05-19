@@ -276,14 +276,9 @@
             </small>
         </div>
         <div class="span6 text-right muted">
-            <a target="_blank" data-bind="visible: github_link() != null, attr: { href: github_link}">
-                Arc Welder&nbsp;<i data-bind="text:version_text"></i>
+            <a target="_blank" href="https://github.com/Thynix/ArcWelderPlugin/releases/tag/{{ plugin_arc_welder_plugin_version }}">
+                Arc Welder&nbsp;<i>v{{ plugin_arc_welder_plugin_version }}</i>
             </a>
-            <span data-bind="visible: github_link() == null">
-                    <small>
-                        Arc Welder&nbsp;<i data-bind="text:version_text"></i>
-                    </small>
-                </span>
         </div>
     </div>
 </div>

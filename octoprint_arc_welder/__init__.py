@@ -29,15 +29,9 @@ import octoprint_arc_welder.log as log
 import octoprint_arc_welder.preprocessor as preprocessor
 import octoprint_arc_welder.utilities as utilities
 
-from ._version import get_versions
-
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
 root_logger = logging_configurator.get_root_logger()
 logger = logging_configurator.get_logger("__init__")
-
-_version_data = get_versions()
-__version__ = _version_data["version"]
-__git_version__ = _version_data.get("revision")
 
 
 class ArcWelderPlugin(
@@ -87,8 +81,6 @@ class ArcWelderPlugin(
                 log_to_console=False,
                 enabled_loggers=[],
             ),
-            version=__version__,
-            git_version=__git_version__,
         )
         # start the preprocessor worker
         self._preprocessor_worker = None
@@ -112,9 +104,12 @@ class ArcWelderPlugin(
 
     # Events
     def get_settings_defaults(self):
-        # plugin_version is not instantiated when __init__ is called.  Update it now.
-        self.settings_default["version"] = self._plugin_version
         return self.settings_default
+
+    def get_template_vars(self):
+        return {
+            "plugin_version": self._plugin_version,
+        }
 
     def on_settings_save(self, data):
         octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
