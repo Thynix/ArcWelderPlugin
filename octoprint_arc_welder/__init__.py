@@ -247,6 +247,9 @@ class ArcWelderPlugin(
         logger.info("Startup Complete.")
 
     # ~~ TemplatePlugin mixin
+    def is_template_autoescaped(self):
+        return True
+
     def get_template_vars(self):
         return {
             "plugin_version": self._plugin_version,
