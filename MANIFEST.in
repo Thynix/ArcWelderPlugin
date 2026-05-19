@@ -2,3 +2,4 @@ include README.md
 recursive-include octoprint_arc_welder/templates *
 recursive-include octoprint_arc_welder/static *
 recursive-include octoprint_arc_welder/translations *
+recursive-include octoprint_arc_welder/data/lib/c *

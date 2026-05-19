@@ -38,9 +38,9 @@ content-type = "text/markdown"
 [tool.setuptools]
 include-package-data = true
 
-[[tools.setuptools.ext-modules]]
+[[tool.setuptools.ext-modules]]
 name = "PyArcWelder"
-include_dirs = [
+include-dirs = [
     "octoprint_arc_welder/data/lib/c/arc_welder",
     "octoprint_arc_welder/data/lib/c/gcode_processor_lib",
     "octoprint_arc_welder/data/lib/c/py_arc_welder",
