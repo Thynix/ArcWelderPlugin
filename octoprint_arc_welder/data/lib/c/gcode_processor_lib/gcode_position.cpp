@@ -5,20 +5,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address:
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "gcode_position.h"
 #include "utilities.h"
@@ -1228,7 +1214,7 @@ void gcode_position::process_g92(position* pos, parsed_command& cmd)
 			pos->y_offset = pos->y + pos->y_firmware_offset;
 		if (!pos->z_null)
 			pos->z_offset = pos->z + pos->z_firmware_offset;
-		// Todo:  Does this reset E too?  Figure that $#$$ out Formerlurker!
+		// Todo:  Does this reset E too?
 		pos->get_current_extruder().e_offset = pos->get_current_extruder().e;
 	}
 	else

@@ -36,7 +36,7 @@ You can install a specific version of *Arc Welder* from a URL within the plugin 
 
 ##### Installation from a URL
 
-1. Navigate to the [releases on Github](https://github.com/FormerLurker/ArcWelderPlugin/releases).
+1. Navigate to the [releases on Github](https://github.com/Thynix/ArcWelderPlugin/releases).
 2. Select the release you are interested in (the most recent release is at the top), and click on the version number.  Note that **Pre-Releases** will be tagged, so avoid those if you are only interested in stable versions.
 3. Read the release notes carefully.  It may contain important information!
 4. Scroll to the bottom of the release page and ensure the **Assets** are expanded.
@@ -64,7 +64,7 @@ These settings control the main aspects of the plugin and how your GCode file wi
 
 * **Arc Welder Enabled** - Check or uncheck to enable or disable the plugin.  This prevents *Arc Welder* from converting any files and adding buttons to the file browser.  It will not remove the plugin from the tabs or settings pages.  If you want to truly disable *Arc Welder*, please do so in the plugin manager.
 * **Resolution in MM** - This setting controls how much play *Arc Welder* has in converting GCode points into arcs.  If the arc deviates from the original points by + or - 1/2 of the resolution, the points will **not** be converted.  The default setting is 0.05 which means the arcs may not deviate by more than +- 0.025mm (that's a **really** tiny deviation).  Increasing the resolution will result in more arcs being converted but will make the tool paths less accurate.  Decreasing the resolution will result in fewer arcs but more accurate tool paths.  I don't recommend going above 0.1MM.  Higher values than that may result in print failure.
-* **Maximum Arc Radius** - This is a safety feature to prevent unusually large arcs from being generated.  Internally, *Arc Welder* uses a constant to prevent an arc with a very large radius from being generated where the path is essentially (but not exactly) a straight line.  If it is not perfectly straight and if my constant isn't conservative enough, an extremely large arc could be created that may have the wrong direction of rotation.  The default value works fine for all of the gCode I've tested (it is about 1/7th of the radius of the worst errant arc I've encountered).  If you discover that you need to adjust this setting because of errant arcs, please [create an issue](https://github.com/FormerLurker/ArcWelderPlugin/issues/new) and let me know!  The default setting is **1000000 mm** or **1KM**.
+* **Maximum Arc Radius** - This is a safety feature to prevent unusually large arcs from being generated.  Internally, *Arc Welder* uses a constant to prevent an arc with a very large radius from being generated where the path is essentially (but not exactly) a straight line.  If it is not perfectly straight and if my constant isn't conservative enough, an extremely large arc could be created that may have the wrong direction of rotation.  The default value works fine for all of the gCode I've tested (it is about 1/7th of the radius of the worst errant arc I've encountered).  If you discover that you need to adjust this setting because of errant arcs, please [create an issue](https://github.com/Thynix/ArcWelderPlugin/issues/new) and let me know!  The default setting is **1000000 mm** or **1KM**.
 * **File Processing Type** - There are three options here:
   * *Automatic Processing Only* - Newly uploaded files will be compressed automatically.
   * *Manual Processing Only* - Convert files by clicking on the compress button in the file manager.  Files that are already compressed will have the compress button disabled.
@@ -146,7 +146,7 @@ G2 X40 I20
 
 If your printer supports arc commands, it should move across a small arc from the origin.  Please feel free to let me know if your firmware supports arc movements, and I may add it to the list.
 
-**Warning**:  The above GCode has not been tested on all printers.  Please use it with caution and [report any issues here](https://github.com/FormerLurker/ArcWelderPlugin/issues).
+**Warning**:  The above GCode has not been tested on all printers.  Please use it with caution and [report any issues here](https://github.com/Thynix/ArcWelderPlugin/issues).
 
 ### Other Firmware Considerations
 
@@ -197,7 +197,7 @@ Verify that you have enough memory to enable this feature if it is disabled.  Yo
 
 If you are running Python 3, confirm that you have the dev package installed.  Please see the installation instructions above for details.
 
-If you are still having problems, please (create an issue)[https://github.com/FormerLurker/ArcWelderPlugin/issues/new] and be sure to include the plugin_pluginmanager_console.log file, which you can find by opening the Octoprint Settings (wrench/spanner icon), clicking on the **Logging** menu, then finding and downloading the proper log file.  Please upload the log file to (gist.github.com)[https://gist.github.com] and place a link within the issue.  Also include the OctoPrint version, the version of python you are running, and the OS version. If you are using OctoPi, please include that version as well.
+If you are still having problems, please (create an issue)[https://github.com/Thynix/ArcWelderPlugin/issues/new] and be sure to include the plugin_pluginmanager_console.log file, which you can find by opening the Octoprint Settings (wrench/spanner icon), clicking on the **Logging** menu, then finding and downloading the proper log file.  Please upload the log file to (gist.github.com)[https://gist.github.com] and place a link within the issue.  Also include the OctoPrint version, the version of python you are running, and the OS version. If you are using OctoPi, please include that version as well.
 
 **4.  I see no improvement in my prints.**
 
@@ -211,8 +211,8 @@ If the code looks good, please try printing *Arc Welder* GCode again to see if i
 
 ## Reporting Issues
 
-If you have a problem using *Arc Welder*, please first check the open and closed issues.  If you find an existing issue that is close to your own, please read through it and see if there are any suggested fixes.  If your issue is unique, consider creating a new issue.  However, please don't use the Github issues as general technical support.  They are for reporting potential bugs in the software.  When in doubt, go ahead and [create an issue here](https://github.com/formerlurker/arcwelderplugin/issues).  I do want to help no matter what your problem is, but I spend so much time time dealing with issues and I'd rather be improving the software if at all possible.  Bug reports improve software, tech support does not.  Thanks in advance!
+If you have a problem using *Arc Welder*, please first check the open and closed issues.  If you find an existing issue that is close to your own, please read through it and see if there are any suggested fixes.  If your issue is unique, consider creating a new issue.  However, please don't use the Github issues as general technical support.  They are for reporting potential bugs in the software.  When in doubt, go ahead and [create an issue here](https://github.com/Thynix/arcwelderplugin/issues).  I do want to help no matter what your problem is, but I spend so much time time dealing with issues and I'd rather be improving the software if at all possible.  Bug reports improve software, tech support does not.  Thanks in advance!
 
 ## License
 
-View the [*Arc Welder* license](https://raw.githubusercontent.com/FormerLurker/ArcWelderPlugin/master/LICENSE).
+View the [*Arc Welder* license](https://raw.githubusercontent.com/Thynix/ArcWelderPlugin/master/LICENSE).

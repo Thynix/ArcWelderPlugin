@@ -8,20 +8,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address:
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if _MSC_VER > 1200
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
@@ -734,7 +720,7 @@ void arc_welder::add_arcwelder_comment_to_target()
 	p_logger_->log(logger_type_, DEBUG, "Adding ArcWelder comment to the target file.");
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
-	stream <<	"; Postprocessed by [ArcWelder](https://github.com/FormerLurker/ArcWelderLib)\n";
+	stream <<	"; Postprocessed by [ArcWelder](https://github.com/Thynix/ArcWelderLib)\n";
 	stream << "; Copyright(C) 2020 - Brad Hochgesang\n";
 	stream << "; arc_welder_resolution_mm = " << resolution_mm_ << "\n";
 	stream << "; arc_welder_g90_influences_extruder = " << (gcode_position_args_.g90_influences_extruder ? "True" : "False") << "\n\n";
