@@ -6,20 +6,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include <exception>
@@ -35,7 +21,7 @@ public:
 		count_ = 0;
 		items_ = new T[max_size_];
 	}
-	
+
 	array_list(int max_size)
 	{
 		auto_grow_ = false;
@@ -44,11 +30,11 @@ public:
 		count_ = 0;
 		items_ = new T[max_size];
 	}
-	
+
 	virtual ~array_list() {
 		delete[] items_;
 	}
-	
+
 	void resize(int max_size)
 	{
 		T* new_items = new T[max_size];
@@ -61,7 +47,7 @@ public:
 		items_ = new_items;
 		max_size_ = max_size;
 	}
-	
+
 	void push_front(T object)
 	{
 		if (count_ == max_size_)
@@ -78,7 +64,7 @@ public:
 		count_++;
 		items_[front_index_] = object;
 	}
-	
+
 	void push_back(T object)
 	{
 		if (count_ == max_size_)
@@ -94,7 +80,7 @@ public:
 		items_[(front_index_ + count_ + max_size_) % max_size_] = object;
 		count_++;
 	}
-	
+
 	T pop_front()
 	{
 		if (count_ == 0)
@@ -117,7 +103,7 @@ public:
 
 		return items_[--count_];
 	}
-	
+
 	T& operator[] (const int index) const
 	{
 		return items_[(front_index_ + index + max_size_) % max_size_];
@@ -127,23 +113,23 @@ public:
 	{
 		return items_[(front_index_ + index + max_size_) % max_size_];
 	}
-	
+
 	int count() const
 	{
 		return count_;
 	}
-	
+
 	int get_max_size() const
 	{
 		return max_size_;
 	}
-	
+
 	void clear()
 	{
 		count_ = 0;
 		front_index_ = 0;
 	}
-	
+
 	void copy(const array_list<T>& source)
 	{
 		if (max_size_ < source.max_size_)

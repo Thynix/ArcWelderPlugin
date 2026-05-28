@@ -6,20 +6,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include <string>
@@ -37,7 +23,7 @@
 #include "python_helpers.h"
 #include <iostream>
 enum py_loggers { GCODE_CONVERSION };
-	
+
 class py_logger : public logger {
 public:
 	py_logger(std::vector<std::string> names, std::vector<int> levels);
@@ -63,4 +49,3 @@ private:
 	PyObject* py_critical_function_name;
 	PyObject* py_get_effective_level_function_name;
 };
-

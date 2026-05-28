@@ -8,20 +8,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include "segmented_shape.h"
@@ -40,7 +26,7 @@ public:
 	virtual bool try_add_point(point p, double e_relative);
 	std::string get_shape_gcode_absolute(double e, double f);
 	std::string get_shape_gcode_relative(double f);
-	
+
 	virtual bool is_shape() const;
 	point pop_front(double e_relative);
 	point pop_back(double e_relative);
@@ -56,4 +42,3 @@ private:
 	circle arc_circle_;
 	double max_radius_mm_;
 };
-

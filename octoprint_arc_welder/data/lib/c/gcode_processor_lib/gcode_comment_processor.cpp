@@ -5,20 +5,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "gcode_comment_processor.h"
 
 gcode_comment_processor::gcode_comment_processor()
@@ -45,14 +31,14 @@ void gcode_comment_processor::update(position& pos)
 	{
 		update_feature_from_section(pos);
 		return;
-	}		
+	}
 
 	if (processing_type_ == comment_process_type_unknown || processing_type_ == comment_process_type_slic3r_pe)
 	{
 		if (update_feature_for_slic3r_pe_comment(pos, pos.command.comment))
 			processing_type_ = comment_process_type_slic3r_pe;
 	}
-	
+
 }
 
 bool gcode_comment_processor::update_feature_for_slic3r_pe_comment(position& pos, std::string &comment) const
@@ -148,7 +134,7 @@ void gcode_comment_processor::update_unknown_section(std::string & comment)
 		processing_type_ = comment_process_type_cura;
 		return;
 	}
-		
+
 	if (update_simplify_3d_section(comment))
 	{
 		processing_type_ = comment_process_type_simplify_3d;
@@ -288,8 +274,8 @@ bool gcode_comment_processor::update_simplify_3d_section(std::string &comment)
 			return true;
 		}
 	}
-	
-	
+
+
 	return false;
 }
 
@@ -307,4 +293,3 @@ bool gcode_comment_processor::update_slic3r_pe_section(std::string &comment)
 	}
 	return false;
 }
-

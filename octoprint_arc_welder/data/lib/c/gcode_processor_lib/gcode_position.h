@@ -5,20 +5,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef GCODE_POSITION_H
 #define GCODE_POSITION_H
@@ -191,7 +177,7 @@ private:
 
 	std::map<std::string, pos_function_type> gcode_functions_;
 	std::map<std::string, pos_function_type>::iterator gcode_functions_iterator_;
-	
+
 	std::map<std::string, pos_function_type> get_gcode_functions();
 	/// Process Gcode Command Functions
 	void process_g0_g1(position*, parsed_command&);

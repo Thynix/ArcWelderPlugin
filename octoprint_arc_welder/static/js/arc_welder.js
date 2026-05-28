@@ -6,22 +6,6 @@
 # the number of gcodes per second sent to a 3D printer that supports arc commands (G2 G3)
 #
 # Copyright (C) 2020  Brad Hochgesang
-# #################################################################################
-# This program is free software:
-# you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see the following:
-# https://github.com/FormerLurker/ArcWelderPlugin/blob/master/LICENSE
-#
-# You can contact the author either through the git-hub repository, or at the
-# following email address: FormerLurker@pm.me
 ################################################################################### */
 $(function () {
     // ArcWelder Global
@@ -164,8 +148,6 @@ $(function () {
         self.plugin_settings = null;
         self.preprocessing_job_guid = null;
         self.pre_processing_progress = null;
-        self.version = ko.observable();
-        self.git_version = ko.observable();
         self.selected_filename = ko.observable();
         self.selected_file_is_new = ko.observable(false);
         self.statistics_shown = ko.observable(null);
@@ -232,31 +214,9 @@ $(function () {
             }
         });
 
-        self.github_link = ko.pureComputed(function(){
-            var git_version = self.git_version();
-            if (!git_version)
-                return null;
-            // If this is a commit, link to the commit
-            if (self.version().includes("+"))
-            {
-                return  'https://github.com/FormerLurker/ArcWelderPlugin/commit/' + git_version;
-            }
-            // This is a release, link to the tag
-            return 'https://github.com/FormerLurker/ArcWelderPlugin/releases/tag/' + self.version();
-        });
-
-        self.version_text = ko.pureComputed(function () {
-            if (self.version() && self.version() !== "unknown") {
-                return "v" + self.version();
-            }
-            return "unknown";
-        });
-
         self.onBeforeBinding = function () {
             // Make plugin setting access a little more terse
             self.plugin_settings = self.settings.settings.plugins.arc_welder;
-            self.version(self.plugin_settings.version());
-            self.git_version(self.plugin_settings.git_version());
         };
 
         self.onAfterBinding = function() {
@@ -860,4 +820,3 @@ $(function () {
         ["#tab_plugin_arc_welder_controls"]
     ]);
 });
-

@@ -5,20 +5,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "utilities.h"
 #include <cmath>
 #include <sstream>
@@ -136,7 +122,7 @@ std::string utilities::to_string(int value)
 char * utilities::to_string(double value, unsigned short precision, char * str)
 {
 	char reversed_int[20];
-	
+
 	int char_count = 0, int_count = 0;
 	bool is_negative = false;
 	double integer_part, fractional_part;
@@ -230,7 +216,7 @@ std::istream& utilities::safe_get_line(std::istream& is, std::string& t)
 	}
 }
 
-std::string utilities::center(std::string input, int width) 
+std::string utilities::center(std::string input, int width)
 {
 	int input_width = input.length();
 	int difference = width - input_width;

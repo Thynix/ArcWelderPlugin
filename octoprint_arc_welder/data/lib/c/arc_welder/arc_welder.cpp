@@ -8,20 +8,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if _MSC_VER > 1200
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
@@ -71,8 +57,8 @@ arc_welder::arc_welder(std::string source_path, std::string target_path, logger 
 	}
 
 	// We don't care about the printer settings, except for g91 influences extruder.
-	
-	p_source_position_ = new gcode_position(gcode_position_args_); 
+
+	p_source_position_ = new gcode_position(gcode_position_args_);
 }
 
 gcode_position_args arc_welder::get_args_(bool g90_g91_influences_extruder, int buffer_size)
@@ -173,7 +159,7 @@ arc_welder_results results;
 	reset();
 	// local variable to hold the progress update return.  If it's false, we will exit.
 	bool continue_processing = true;
-	
+
 	p_logger_->log(logger_type_, DEBUG, "Configuring progress updates.");
 	int read_lines_before_clock_check = 5000;
 	double next_update_time = get_next_update_time();
@@ -212,9 +198,9 @@ arc_welder_results results;
 	int lines_with_no_commands = 0;
 	//gcodeFile.sync_with_stdio(false);
 	//output_file_.sync_with_stdio(false);
-	
+
 	add_arcwelder_comment_to_target();
-	
+
 	parsed_command cmd;
 	// Communicate every second
 	p_logger_->log(logger_type_, DEBUG, "Processing source file.");
@@ -247,7 +233,7 @@ arc_welder_results results;
 		//std::cout << "stabilization::process_file - updating position...";
 		process_gcode(cmd, false, false);
 
-		// Only continue to process if we've found a command and either a progress_callback_ is supplied, or debug loggin is enabled.
+		// Only continue to process if we've found a command and either a progress_callback_ is supplied, or debug logging is enabled.
 		if (has_gcode && (progress_callback_ != NULL || info_logging_enabled_))
 		{
 			if ((lines_processed_ % read_lines_before_clock_check) == 0 && next_update_time < clock())
@@ -282,7 +268,7 @@ arc_welder_results results;
 	output_file_.close();
 	gcodeFile.close();
 	const clock_t end_clock = clock();
-	
+
 	results.success = continue_processing;
 	results.cancelled = !continue_processing;
 	results.progress = final_progress;
@@ -328,7 +314,7 @@ arc_welder_progress arc_welder::get_progress_(long source_file_position, double 
 
 	progress.segment_statistics = segment_statistics_;
 	return progress;
-	
+
 }
 
 int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess)
@@ -344,10 +330,10 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 
 	int lines_written = 0;
 	// see if this point is an extrusion
-	
+
 	bool arc_added = false;
 	bool clear_shapes = false;
-	
+
 	// Update the source file statistics
 	if (p_cur_pos->has_xy_position_changed && (extruder_current.is_extruding || extruder_current.is_retracting) && !is_reprocess)
 	{
@@ -381,7 +367,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 			(!waiting_for_arc_ || p_pre_pos->feature_type_tag == p_cur_pos->feature_type_tag)
 			)
 	) {
-		
+
 		if (!waiting_for_arc_)
 		{
 			previous_is_extruder_relative_ = p_pre_pos->is_extruder_relative;
@@ -396,7 +382,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 			//std::cout << "Trying to add first point (" << p.x << "," << p.y << "," << p.z << ")...";
 			current_arc_.try_add_point(previous_p, 0);
 		}
-		
+
 		double e_relative = extruder_current.e_relative;
 		int num_points = current_arc_.get_num_segments();
 		arc_added = current_arc_.try_add_point(p, e_relative);
@@ -425,7 +411,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 	else if (debug_logging_enabled_ ){
 		if (is_end)
 		{
-			p_logger_->log(logger_type_, DEBUG, "Procesing final shape, if one exists.");
+			p_logger_->log(logger_type_, DEBUG, "Processing final shape, if one exists.");
 		}
 		else if (!cmd.is_empty)
 		{
@@ -446,7 +432,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 				p_logger_->log(logger_type_, DEBUG, "XYZ Axis is in relative mode, cannot convert:" + cmd.gcode);
 			}
 			else if (
-				waiting_for_arc_ && !( 
+				waiting_for_arc_ && !(
 					(previous_extruder.is_extruding && extruder_current.is_extruding) ||
 					(previous_extruder.is_retracting && extruder_current.is_retracting)
 				)
@@ -455,7 +441,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 				std::string message = "Extruding or retracting state changed, cannot add point to current arc: " + cmd.gcode;
 				if (verbose_logging_enabled_)
 				{
-					
+
 					message.append(
 						" - Verbose Info\n\tCurrent Position Info - Absolute E:" + utilities::to_string(extruder_current.e) +
 						", Offset E:" + utilities::to_string(extruder_current.get_offset_e()) +
@@ -480,7 +466,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 				{
 					p_logger_->log(logger_type_, DEBUG, message);
 				}
-				
+
 			}
 			else if (p_cur_pos->is_extruder_relative != p_pre_pos->is_extruder_relative)
 			{
@@ -501,7 +487,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 			}
 		}
 	}
-	
+
 	if (!arc_added)
 	{
 		if (current_arc_.get_num_segments() < current_arc_.get_min_segments()) {
@@ -511,7 +497,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 				{
 					p_logger_->log(logger_type_, DEBUG, "Not enough segments, resetting. Gcode:" + cmd.gcode);
 				}
-				
+
 			}
 			waiting_for_arc_ = false;
 			current_arc_.clear();
@@ -537,7 +523,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 				}
 				// get the feedrate for the previous position (the last command that was turned into an arc)
 				double current_f = p_pre_pos->f;
-				
+
 				// Undo the current command, since it isn't included in the arc
 				p_source_position_->undo_update();
 				// IMPORTANT NOTE: p_cur_pos and p_pre_pos will NOT be usable beyond this point.
@@ -550,16 +536,16 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 					current_f = 0;
 				}
 
-				// Craete the arc gcode
+				// Create the arc gcode
 				std::string gcode;
 				if (previous_is_extruder_relative_){
 					gcode = get_arc_gcode_relative(current_f, comment);
 				}
-					
-				else { 
+
+				else {
 					gcode = get_arc_gcode_absolute(extruder_current.get_offset_e(), current_f, comment);
 				}
-				
+
 
 				if (debug_logging_enabled_)
 				{
@@ -575,19 +561,19 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 				// Get and alter the current position so we can add it to the unwritten commands list
 				parsed_command arc_command = parser_.parse_gcode(gcode.c_str());
 				double arc_extrusion_length = current_arc_.get_shape_length();
-				
+
 				unwritten_commands_.push_back(
 					unwritten_command(arc_command, p_cur_pos->is_extruder_relative, arc_extrusion_length)
 				);
-				
+
 				// write all unwritten commands (if we don't do this we'll mess up absolute e by adding an offset to the arc)
 				// including the most recent arc command BEFORE updating the absolute e offset
 				write_unwritten_gcodes_to_file();
-				
+
 				// Now clear the arc and flag the processor as not waiting for an arc
 				waiting_for_arc_ = false;
 				current_arc_.clear();
-				
+
 
 				// Reprocess this line
 				if (!is_end)
@@ -602,7 +588,7 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 					}
 					return 0;
 				}
-					
+
 			}
 			else
 			{
@@ -633,9 +619,9 @@ int arc_welder::process_gcode(parsed_command cmd, bool is_end, bool is_reprocess
 			position* prev_pos = p_source_position_->get_previous_position_ptr();
 			length = utilities::get_cartesian_distance(cur_pos->x, cur_pos->y, prev_pos->x, prev_pos->y);
 		}
-		
+
 		unwritten_commands_.push_back(unwritten_command(cur_pos, length));
-		
+
 	}
 	if (!waiting_for_arc_)
 	{
@@ -683,8 +669,8 @@ int arc_welder::write_unwritten_gcodes_to_file()
 {
 	int size = unwritten_commands_.count();
 	std::string gcode_to_write;
-	
-	
+
+
 	for (int index = 0; index < size; index++)
 	{
 		// The the current unwritten position and remove it from the list
@@ -695,7 +681,7 @@ int arc_welder::write_unwritten_gcodes_to_file()
 		}
 		write_gcode_to_file(p.command.to_string());
 	}
-	
+
 	return size;
 }
 
@@ -705,13 +691,13 @@ std::string arc_welder::get_arc_gcode_relative(double f, const std::string comme
 	std::string gcode;
 
 	gcode = current_arc_.get_shape_gcode_relative(f);
-	
+
 	if (comment.length() > 0)
 	{
 		gcode += ";" + comment;
 	}
 	return gcode;
-	
+
 }
 
 std::string arc_welder::get_arc_gcode_absolute(double e, double f, const std::string comment)
@@ -734,12 +720,10 @@ void arc_welder::add_arcwelder_comment_to_target()
 	p_logger_->log(logger_type_, DEBUG, "Adding ArcWelder comment to the target file.");
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(2);
-	stream <<	"; Postprocessed by [ArcWelder](https://github.com/FormerLurker/ArcWelderLib)\n";
+	stream <<	"; Postprocessed by [ArcWelder](https://github.com/Thynix/ArcWelderLib)\n";
 	stream << "; Copyright(C) 2020 - Brad Hochgesang\n";
 	stream << "; arc_welder_resolution_mm = " << resolution_mm_ << "\n";
 	stream << "; arc_welder_g90_influences_extruder = " << (gcode_position_args_.g90_influences_extruder ? "True" : "False") << "\n\n";
-	
+
 	output_file_ << stream.str();
 }
-
-

@@ -5,26 +5,12 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if _MSC_VER > 1200
 #define _CRT_SECURE_NO_DEPRECATE
 #endif
 #include "logger.h"
 logger::logger(std::vector<std::string> names, std::vector<int> levels) {
-	// set to true by default, but can be changed by inheritance to support mandatory innitialization (for python or other integrations)
+	// set to true by default, but can be changed by inheritance to support mandatory initialization (for python or other integrations)
 	loggers_created_ = true;
 	num_loggers_ = static_cast<int>(names.size());
 	logger_names_ = new std::string[static_cast<int>(num_loggers_)];
@@ -35,7 +21,7 @@ logger::logger(std::vector<std::string> names, std::vector<int> levels) {
 		logger_names_[index] = names[index];
 		logger_levels_[index] = levels[index];
 	}
-	
+
 	set_log_level_by_value(NOSET);
 }
 
@@ -136,7 +122,7 @@ void logger::log(const int logger_type, const int log_level, const std::string& 
 	else
 		std::cout << output << std::endl;
 	std::cout.flush();
-	
+
 }
 
 void logger::get_timestamp(std::string &timestamp)
@@ -148,7 +134,7 @@ void logger::get_timestamp(std::string &timestamp)
 	std::time(&rawtime);
 	timeinfo = std::localtime(&rawtime);
 	std::strftime(buffer, 80, "%Y-%m-%d %H:%M:%S.", timeinfo);
-	
+
 	timestamp = buffer;
 	clock_t t = std::clock();
 	int ms = static_cast<int>((t / CLOCKS_PER_MS)) % 1000;
@@ -157,7 +143,7 @@ void logger::get_timestamp(std::string &timestamp)
 	sprintf(buffer, "%d", ms) ;// std::to_string(ms);
 	s_miliseconds = buffer;
 	timestamp.append(std::string(3 - s_miliseconds.length(), '0') + s_miliseconds);
-	
+
 }
 
 /*

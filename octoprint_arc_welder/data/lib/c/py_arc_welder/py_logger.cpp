@@ -6,20 +6,6 @@
 //
 // Copyright(C) 2020 - Brad Hochgesang
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This program is free software : you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-// GNU Affero General Public License for more details.
-//
-//
-// You can contact the author at the following email address: 
-// FormerLurker@pm.me
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "py_logger.h"
 
 py_logger::py_logger(std::vector<std::string> names, std::vector<int> levels) : logger(names, levels)
@@ -67,7 +53,7 @@ void py_logger::initialize_loggers()
 		PyErr_SetString(PyExc_ImportError, "Could not create LoggingConfigurator arguments.");
 		return;
 	}
-	
+
 	py_logging_configurator = PyObject_CallObject(py_logging_configurator_name, funcArgs);
 	std::cout << "Complete.\r\n";
 	Py_DECREF(funcArgs);
@@ -116,7 +102,7 @@ void py_logger::set_internal_log_levels(bool check_real_time)
 		Py_XDECREF(py_gcode_conversion_log_level);
 	}
 }
-	
+
 void py_logger::log_exception(const int logger_type, const std::string& message)
 {
 	log(logger_type, ERROR, message, true);
@@ -228,9 +214,9 @@ void py_logger::log(const int logger_type, const int log_level, const std::strin
 		{
 			std::cout << "Logging.arc_welder_log - null was returned from the specified logger and an error was detected.\r\n";
 			std::cout << "\tLog Level: " << log_level <<", Logger Type: " << logger_type << ", Message: " << message.c_str() << "\r\n";
-			
-			// I'm not sure what else to do here since I can't log the error.  I will print it 
-			// so that it shows up in the console, but I can't log it, and there is no way to 
+
+			// I'm not sure what else to do here since I can't log the error.  I will print it
+			// so that it shows up in the console, but I can't log it, and there is no way to
 			// return an error.
 			PyErr_Print();
 			PyErr_Clear();

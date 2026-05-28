@@ -6,27 +6,11 @@
 # the number of gcodes per second sent to a 3D printer that supports arc commands (G2 G3)
 #
 # Copyright (C) 2020  Brad Hochgesang
-# #################################################################################
-# This program is free software:
-# you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see the following:
-# https://github.com/FormerLurker/ArcWelderPlugin/blob/master/LICENSE
-#
-# You can contact the author either through the git-hub repository, or at the
-# following email address: FormerLurker@pm.me
 ##################################################################################-->
 <script type="text/html" id="arc_welder_settings_about">
     <h4>Support My Efforts</h4>
     <p>
-        If you like this plugin or any of the others I've designed or contributed to (Octolapse), please consider supporting my efforts by sponsoring me on <a href="https://www.patreon.com/bePatron?u=9588101" target="_blank" title="Become a patron"><i class="fa fa-patreon"></i>Patreon</a>, <a href="https://github.com/FormerLurker" target="_blank" title="FormerLurker&#146;s Github Page"><i class="fa fa-github">&nbsp;Github</i></a>, or buy me a beer with <a href="https://paypal.me/formerlurker" target="_blank" title="Donate via PayPal"><i class="fa fa-paypal"></i>&nbsp;PayPal</a>.  I'd also appreciate if you subscribed to my <a href="https://youtube.com/c/FormerLurker" target="_blank" title="FormerLurker&#146;s YouTube Channel"><i class="fa fa-youtube"></i>&nbsp;YouTube</a> channel.  I would love to spend even more time working on open source projects, and you can help make that happen!
+        If you like this plugin or any of the others I've designed or contributed to (Octolapse), please consider supporting my efforts by sponsoring me on <a href="https://www.patreon.com/bePatron?u=9588101" target="_blank" title="Become a patron"><i class="fa fa-patreon"></i>Patreon</a>, <a href="https://github.com/Thynix" target="_blank" title="Thynix&#146;s Github Page"><i class="fa fa-github">&nbsp;Github</i></a>, or buy me a beer with <a href="https://paypal.me/formerlurker" target="_blank" title="Donate via PayPal"><i class="fa fa-paypal"></i>&nbsp;PayPal</a>.  I'd also appreciate if you subscribed to my <a href="https://youtube.com/c/FormerLurker" target="_blank" title="FormerLurker&#146;s YouTube Channel"><i class="fa fa-youtube"></i>&nbsp;YouTube</a> channel.  I would love to spend even more time working on open source projects, and you can help make that happen!
     </p>
     <hr/>
     <h4>The Stuttering Problem</h4>
@@ -65,7 +49,7 @@
         Not all printers support arc commands, and many people have disabled arc commands to save a small amount of memory.  If your firmware does not support these commands, then <i>Arc Welder</i> will not help you.  It's sometimes possible to change your printer's firmware to support these commands, but many flavors of firmware don't support arc commands for all printers, especially delta printers.
     </p>
     <p>
-        Some firmware is compiled with options that will prevent the arc commands from working as expected in all instances.  In particular, Marlin has an option called <i>MM_PER_ARC_SEGMENT</i> that defaults to 1mm, which is a very conservative default value that few people have changed (G2 and G3 is not commonly used, afterall).  This means any arc segments shorter than 1mm will be converted into straight lines.  A 1mm curve that is printed as a straight line is very obvious.  I recommend reducing this value to 0.1mm, though I will have a better recommendation once I'm able to play with it a bit more.
+        Some firmware is compiled with options that will prevent the arc commands from working as expected in all instances.  In particular, Marlin has an option called <i>MM_PER_ARC_SEGMENT</i> that defaults to 1mm, which is a very conservative default value that few people have changed (G2 and G3 is not commonly used, after all).  This means any arc segments shorter than 1mm will be converted into straight lines.  A 1mm curve that is printed as a straight line is very obvious.  I recommend reducing this value to 0.1mm, though I will have a better recommendation once I'm able to play with it a bit more.
     </p>
     <p>
         Auto bed leveling isn't always supported fully when using G2/G3.  Prusa firmware specifically states (though I'm not sure if this is still true) that Auto-Bed Leveling is only implemented at the endpoints of an arc, which could cause problems if there are very long arcs in your print.  Hopefully this will be solved at some point.
