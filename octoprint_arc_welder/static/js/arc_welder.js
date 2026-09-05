@@ -433,7 +433,7 @@ $(function () {
                 return item.name;
             }
         }
-        logger.error("Could not find value '" + value + "' for options.");
+        console.error("Could not find value '" + value + "' for options.");
         return "Unknown";
     }
 
@@ -1531,7 +1531,7 @@ $(function () {
                     self.firmware_info.checking_firmware(false);
                     break;
                 default:
-                    loger.error("Arc Welder received an unknown event: " + data.message_type);
+                    console.error("Arc Welder received an unknown event: " + data.message_type);
             }
         };
 

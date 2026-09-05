@@ -420,7 +420,6 @@ class TestFirmwareChecker(unittest.TestCase):
         self.assertEqual(firmware_info["type"], "Smoothieware")
 
         # test future
-        firmware_guid = "3a166cc2-ff62-4011-aa70-ffa96950a105"
         self.response = [
             "FIRMWARE_NAME:Smoothieware, FIRMWARE_URL:http%3A//smoothieware.org, "
             "X-SOURCE_CODE_URL:https://github.com/Smoothieware/Smoothieware, "

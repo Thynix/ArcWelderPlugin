@@ -45,7 +45,7 @@ logger = logging_configurator.get_logger("__init__")
 
 # must import AFTER the logger is imported,
 # else this will fail to log and may crash
-import PyArcWelder as converter
+import PyArcWelder as converter  # noqa: E402
 
 
 class ArcWelderPlugin(
@@ -332,7 +332,6 @@ class ArcWelderPlugin(
                     # Only print this error if firmware compensation is enabled
                     errors.append("If firmware compensation is enabled, Min Arc Segments must be greater than 0.")
                 settings[key] = self._settings.get([key])
-                has_firmware_compensation_issue = True
 
             key = "default_xyz_precision"
             if key in settings and (int(settings[key]) < 3 or int(settings[key]) > 6):
@@ -525,7 +524,6 @@ class ArcWelderPlugin(
         return send_file(self._log_file_path, as_attachment=True)
 
     def send_preprocessing_tasks_update(self):
-        response = {"preprocessing_tasks": None}
         preprocessing_tasks = []
         if self._preprocessor_worker:
             preprocessing_tasks = self._preprocessor_worker.get_tasks()
@@ -907,10 +905,8 @@ class ArcWelderPlugin(
         if source_path == target_path:
             logger.info("Overwriting source file '%s' with the processed file '%s'.", source_name, target_name)
             # first remove the source file
-            cant_overwrite = False
             try:
                 self._remove_file_from_filemanager(source_path)
-                cant_overwrite = True
             except StorageError:
                 logger.error("Unable to overwrite the target file, it is currently in use.  Writing to new file.")
                 # get a collision free filename and save it like that
@@ -1024,7 +1020,6 @@ class ArcWelderPlugin(
         extension = utilities.get_extension_from_filename(filename)
         filename_no_extension = utilities.remove_extension_from_filename(filename)
 
-        display_extension = utilities.get_extension_from_filename(display_name)
         display_name_no_extension = utilities.remove_extension_from_filename(display_name)
 
         original_filename = filename_no_extension
@@ -1452,13 +1447,13 @@ class ArcWelderPlugin(
                     "The max g2/g3 length setting is less than 0.  Setting to 0, which will disable max g2 g3 length detection."
                 )
                 max_gcode_length = 0
-                max_gcode_length_detection_enabled = false
+                max_gcode_length_detection_enabled = False
             elif max_gcode_length < 31:
                 logger.warning(
                     "The max g2/g3 length setting is less than 31, but not 0.  Setting to 0, which will disable max g2 g3 length detection."
                 )
                 max_gcode_length = 0
-                max_gcode_length_detection_enabled = false
+                max_gcode_length_detection_enabled = False
 
         # determine the target file name and path
         target_name, target_path, target_display_name = self.get_output_file_name_and_path(
@@ -1544,7 +1539,6 @@ class ArcWelderPlugin(
         )
         # pull out the interesting bits of the file info that tell us if we should process or not
         gcode_comment_settings = {}
-        is_slicer_upload = False
         if gcode_search_results:
             if gcode_search_results.get("is_welded", False):
                 logger.info(
@@ -1597,7 +1591,7 @@ class ArcWelderPlugin(
                         FileDestinations.LOCAL, task["octoprint_args"]["source_path"]
                     )
                     self._file_manager._analysis_queue.dequeue(queue_entry)
-                except e:
+                except Exception:
                     # this may be too broad, but I don't want any errors here!
                     logger.exception("Unable to remove the currently processing file from the analysis queue.")
         if self._show_queued_notification:

@@ -316,7 +316,6 @@ class FirmwareChecker:
                 break
 
         if not firmware_type:
-            error = "Arc Welder does not recognize this firmware."
             return result
 
         # Get the help file for this firmware type
@@ -522,7 +521,6 @@ class FirmwareChecker:
         parsed_response = firmware_check_result.get("m115_parsed_response", None)
         is_regex = False
         build_date = None
-        arcs_not_enabled = None
         # Check Arcs Enabled
         if get_guild_date_info:
             if isinstance(get_guild_date_info, dict):
@@ -550,14 +548,10 @@ class FirmwareChecker:
 
     @staticmethod
     def is_version_in_versions(current_version_string, version_checks, firmware_type, compare_type):
-        if compare_type == "date":
-            current_value = FirmwareChecker.parse_datetime(current_version_string)
-        elif compare_type == "semantic":
-            if "clean_version" in firmware_type["functions"]:
-                clean_version_name = firmware_type["functions"]["clean_version"]
-                clean_version = getattr(FirmwareChecker, clean_version_name, None)
-                current_version_string = clean_version(current_version_string)
-            current_value = parse_version(current_version_string)
+        if compare_type == "semantic" and "clean_version" in firmware_type["functions"]:
+            clean_version_name = firmware_type["functions"]["clean_version"]
+            clean_version = getattr(FirmwareChecker, clean_version_name, None)
+            current_version_string = clean_version(current_version_string)
 
         return utilities.is_version_in_versions(current_version_string, version_checks, compare_type)
 
@@ -908,7 +902,6 @@ class FirmwareChecker:
 
         result = self._get_printer_response(request)
 
-        arcs_enabled = None
         if result.response is not None:
             firmware_info["arcs_enabled"] = FirmwareChecker._g2_g3_response_enabled(result.response[0], firmware_info)
 
@@ -1036,7 +1029,7 @@ class FirmwareChecker:
     # noinspection PyUnusedLocal
     def on_gcode_sending(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
         # ensure that each hook must wait for the other to complete
-        with self._request_lock as r:
+        with self._request_lock:
             if self._get_is_request_open():
                 logger.verbose("on_gcode_sent: Gcode Sent: %s", cmd)
                 if self._get_request_waiting_for_send():
@@ -1061,7 +1054,7 @@ class FirmwareChecker:
     def on_gcode_received(self, comm, line, *args, **kwargs):
         """Must be called when gcodes are about to be sent by the owner."""
         # ensure that each hook must wait for the other to complete
-        with self._request_lock as r:
+        with self._request_lock:
             # see if there is a pending request.  Do this without a lock for speed. I think this is OK
             if self._get_is_request_open():
                 clean_line = line.strip()
@@ -1073,7 +1066,7 @@ class FirmwareChecker:
                     # recheck to ensure printer request is not none now that we've acquired the lock
                     if self._printer_request is not None:
                         if not self._get_request_waiting_for_send():
-                            if self._printer_request.response_started == False:
+                            if not self._printer_request.response_started:
                                 logger.verbose("on_gcode_received: checking response '%s'.", clean_line)
                                 # ensure atomic writes here
                                 success, new_line = self._printer_request.check_response(clean_line)

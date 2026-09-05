@@ -133,7 +133,6 @@ class PreProcessorWorker(threading.Thread):
                 logger.info(results["error_message"])
                 return results
             for existing_task in self._task_deque:
-                existing_source_path_on_disk = existing_task["processor_args"]["source_path"]
                 if existing_task["octoprint_args"]["source_path"] == new_task["octoprint_args"]["source_path"]:
                     results["error_message"] = "This file is already queued for processing and cannot be added again."
                     logger.info(results["error_message"])
@@ -214,13 +213,12 @@ class PreProcessorWorker(threading.Thread):
                         continue
                     self._current_task = task
 
-                success = False
                 try:
                     self._process(task)
                 except Exception:
                     logger.exception("An unhandled exception occurred while preprocessing the gcode file.")
                     message = (
-                        "An error occurred while preprocessing {0}.  Check plugin_arc_welder.log for details.".format(
+                        "An error occurred while preprocessing {}.  Check plugin_arc_welder.log for details.".format(
                             task["processor_args"]["source_path"]
                         )
                     )
@@ -242,7 +240,7 @@ class PreProcessorWorker(threading.Thread):
             self._source_path,
         )
         if not os.path.exists(task["processor_args"]["source_path"]):
-            message = "The source file path at '{0}' does not exist.  It may have been moved or deleted".format(
+            message = "The source file path at '{}' does not exist.  It may have been moved or deleted".format(
                 task["processor_args"]["source_path"]
             )
             self._failed_callback(task, message)
@@ -334,12 +332,10 @@ class PreProcessorWorker(threading.Thread):
 
     def _check_for_cancelled_tasks(self):
         cancel_all, guids_to_cancel = self._get_cancellations_callback()
-        cancelled_items = False
         if cancel_all:
             logger.info("Cancelling all processing tasks.")
             self.cancel_all()
         elif len(guids_to_cancel) > 0:
-            cancelled_items = True
             for job_guid in guids_to_cancel:
                 removed_task = self.remove_task(job_guid)
                 if removed_task:

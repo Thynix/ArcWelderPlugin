@@ -201,7 +201,6 @@ def search_string(string_to_search, strings_to_find, start_index=0):
     :param start_index: The index of the string_to_search at which to begin searching for test.
     :return: The index of the match or -1 if it is not found
     """
-    index = start_index
     search_strlen = len(string_to_search)
     for item in strings_to_find:
         # skip spaces
