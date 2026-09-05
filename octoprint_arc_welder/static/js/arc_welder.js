@@ -1034,8 +1034,6 @@ $(function () {
 
         self.plugin_settings = null;
         self.pre_processing_progress = null;
-        self.version = ko.observable();
-        self.git_version = ko.observable();
         self.selected_filename = ko.observable();
         self.selected_file_is_new = ko.observable(false);
 
@@ -1248,26 +1246,6 @@ $(function () {
             );
         });
 
-        self.github_link = ko.pureComputed(function(){
-            var git_version = self.git_version();
-            if (!git_version)
-                return null;
-            // If this is a commit, link to the commit
-            if (self.version().includes("+"))
-            {
-                return  'https://github.com/FormerLurker/ArcWelderPlugin/commit/' + git_version;
-            }
-            // This is a release, link to the tag
-            return 'https://github.com/FormerLurker/ArcWelderPlugin/releases/tag/' + self.version();
-        });
-
-        self.version_text = ko.pureComputed(function () {
-            if (self.version() && self.version() !== "unknown") {
-                return "v" + self.version();
-            }
-            return "unknown";
-        });
-
         self.onBeforeBinding = function () {
             // Make plugin setting access a little more terse
             //self.plugin_settings = self.settings.settings.plugins.arc_welder;
@@ -1275,8 +1253,6 @@ $(function () {
             self.plugin_settings = ko.mapping.fromJS(ko.mapping.toJS(self.settings.settings.plugins.arc_welder));
 
             self.octoprint_settings = self.settings.settings;
-            self.version(self.plugin_settings.version());
-            self.git_version(self.plugin_settings.git_version());
         };
 
         self.onAfterBinding = function() {

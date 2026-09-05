@@ -132,12 +132,6 @@ class ArcWelderPlugin(
         # get version information for PyArcWelder
         self.arc_welder_lib_version_info = converter.GetVersionInfo();
 
-        # get version information from versioneer
-        from ._version import get_versions
-        self.source_version = get_versions()["version"]
-        self.git_version = get_versions()["full-revisionid"]
-        del get_versions
-
         # Note, you cannot count the number of items left to process using the
         # _processing_queue.  Items put into this queue will be inserted into
         # an internal dequeue by the preprocessor
@@ -182,8 +176,6 @@ class ArcWelderPlugin(
                 log_to_console=False,
                 enabled_loggers=[],
             ),
-            version=self.source_version,
-            git_version=self.git_version,
             arc_welder_lib_version_info = self.arc_welder_lib_version_info
         )
         # preprocessor worker
@@ -283,9 +275,10 @@ class ArcWelderPlugin(
 
     # Events
     def get_settings_defaults(self):
-        # plugin_version is not instantiated when __init__ is called.  Update it now.
-        #self.settings_default["version"] = self._plugin_version
         return self.settings_default
+
+    def get_template_vars(self):
+        return {"plugin_version": self._plugin_version}
 
     def on_settings_save(self, data):
         success, data, errors = self.check_settings(data)
@@ -1751,8 +1744,3 @@ def __plugin_load__():
 
 class TargetFileSaveError(Exception):
     pass
-
-from ._version import get_versions
-__version__ = get_versions()["version"]
-__git_version__ = get_versions()["full-revisionid"]
-del get_versions
