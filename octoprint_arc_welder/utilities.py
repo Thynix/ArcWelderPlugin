@@ -378,7 +378,7 @@ def is_version_in_versions(current_version_string, version_checks, compare_type=
                 if stripped_current != stripped_compare:
                     continue
                 return False
-            # For ordering checks, treat an unparseable current version as older
+            # For ordering checks, treat an unparsable current version as older
             # than any parseable one (matches the old pkg_resources behaviour).
             if current_value is None and compare_value is not None and logical_operator in ("<", "<="):
                 continue
