@@ -280,6 +280,10 @@ class ArcWelderPlugin(
     def get_template_vars(self):
         return {"plugin_version": self._plugin_version}
 
+    def is_template_autoescaped(self):
+        # https://docs.octoprint.org/en/master/plugins/mixins.html#octoprint.plugin.TemplatePlugin.is_template_autoescaped
+        return True
+
     def on_settings_save(self, data):
         success, data, errors = self.check_settings(data)
         if not success:
