@@ -1658,7 +1658,7 @@ class ArcWelderPlugin(
         return line
 
 
-__plugin_pythoncompat__ = ">=3.9,<4"
+__plugin_pythoncompat__ = ">=3.10,<4"
 __plugin_implementation__ = ArcWelderPlugin()
 
 
