@@ -618,6 +618,7 @@ copy of the Program in return for a fee.
 
 Arc Welder: Anti-Stutter and GCode Compression - Replaces G0/G1 with G2/G3 where possible.
     Copyright (C) 2020  Brad Hochgesang
+    Copyright (C) 2026  Steve Dougherty
 
                      END OF TERMS AND CONDITIONS
 
