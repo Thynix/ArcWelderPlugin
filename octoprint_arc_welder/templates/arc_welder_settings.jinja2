@@ -65,7 +65,7 @@
                                 <div class="controls">
                                     <div>
                                         <div class="input-append">
-                                            <input class="input-small" required="true" type="number" min="0.001" max="0.1"
+                                            <input class="input-small" required type="number" min="0.001" max="0.1"
                                                    step="0.001" id="arc_welder_resolution_mm"
                                                    data-bind="value: plugin_settings().resolution_mm">
                                             <span class="add-on">mm</span>
@@ -82,7 +82,7 @@
                                 <label class="control-label" for="arc_welder_path_percent_tolerance"><strong>Path Tolerance</strong></label>
                                 <div class="controls">
                                     <div class="input-append">
-                                        <input class="input-small" required="true" type="number" min="0.1" max="99"
+                                        <input class="input-small" required type="number" min="0.1" max="99"
                                                step="0.1" id="arc_welder_path_percent_tolerance"
                                                data-bind="value: plugin_settings().path_tolerance_percent">
                                         <span class="add-on">%</span>
@@ -97,7 +97,7 @@
                                     Radius</strong></label>
                                 <div class="controls">
                                     <div class="input-append">
-                                        <input class="input-small" required="true" type="number" min="1" max="1000000"
+                                        <input class="input-small" required type="number" min="1" max="1000000"
                                                step="1" id="arc_welder_max_radius_mm"
                                                data-bind="value: plugin_settings().max_radius_mm">
                                         <span class="add-on">mm</span>
@@ -125,7 +125,7 @@
                                     <strong>Default XYZ Precision</strong></label>
                                 <div class="controls">
                                     <div class="input-append">
-                                        <input class="input-small" required="true" type="number" min="3" max="6"
+                                        <input class="input-small" required type="number" min="3" max="6"
                                                step="1" id="arc_welder_default_xyz_precision"
                                                data-bind="value: plugin_settings().default_xyz_precision">
                                         <span class="add-on">decimals</span>
@@ -139,7 +139,7 @@
                                     <strong>Default E Precision</strong></label>
                                 <div class="controls">
                                     <div class="input-append">
-                                        <input class="input-small" required="true" type="number" min="3" max="6"
+                                        <input class="input-small" required type="number" min="3" max="6"
                                                step="1" id="arc_welder_default_e_precision"
                                                data-bind="value: plugin_settings().default_e_precision">
                                         <span class="add-on">decimals</span>
@@ -182,7 +182,7 @@
                                 <label class="control-label" for="arc_welder_extrusion_rate_variance_percent"><strong>Extrusion Rate Variance Percent</strong></label>
                                 <div class="controls">
                                     <div class="input-append">
-                                        <input class="input-small" required="true" type="number" min="0" max="1000"
+                                        <input class="input-small" required type="number" min="0" max="1000"
                                                step="0.1" id="arc_welder_extrusion_rate_variance_percent"
                                                data-bind="value: plugin_settings().extrusion_rate_variance_percent">
                                         <span class="add-on">%</span>
@@ -237,7 +237,7 @@
                                 </label>
                                 <div class="controls">
                                     <div class="input-append">
-                                        <input id="arc_welder_max_gcode_length" class="input-small" required="true" type="number" min="30" max="255"
+                                        <input id="arc_welder_max_gcode_length" class="input-small" required type="number" min="30" max="255"
                                                step="1"
                                                data-bind="value: plugin_settings().max_gcode_length">
                                         <span class="add-on">characters</span>
@@ -266,7 +266,7 @@
                                 <label class="control-label" for="arc_welder_target_prefix"><strong>Target File
                                     Prefix</strong></label>
                                 <div class="controls">
-                                    <input required="true" class="input-small" type="text"
+                                    <input required class="input-small" type="text"
                                            id="arc_welder_target_prefix"
                                            data-bind="value: plugin_settings().target_prefix">
                                     <a class="arc_welder_help" data-help-url="settings.target_prefix.md"
@@ -277,7 +277,7 @@
                                 <label class="control-label" for="arc_welder_target_postfix"><strong>Target File
                                     Postfix</strong></label>
                                 <div class="controls">
-                                    <input required="true" class="input-small" type="text"
+                                    <input required class="input-small" type="text"
                                            id="arc_welder_target_postfix"
                                            data-bind="value: plugin_settings().target_postfix">
                                     <a class="arc_welder_help" data-help-url="settings.target_postfix.md"
@@ -411,7 +411,7 @@
                                 <div class="controls">
                                     <div class="control-text">
                                         <span data-bind="text:firmware_info.firmware_types_info().last_checked_date"></span>
-                                        <span data-bind="visible: !firmware_info.firmware_types_info().last_check_success"> - Failed</span></br>
+                                        <span data-bind="visible: !firmware_info.firmware_types_info().last_check_success"> - Failed</span>
                                     </div>
                                 </div>
                             </div>
@@ -435,7 +435,7 @@
                             <div class="control-group" data-bind="visible:plugin_settings().firmware_compensation_enabled">
                                 <label class="control-label" for="arc_welder_min_arc_segments"><strong>Minimum Arc Segments</strong></label>
                                 <div class="controls">
-                                    <input class="input-small" required="true" type="number" min="3" max="100000"
+                                    <input class="input-small" required type="number" min="3" max="100000"
                                            step="1" id="arc_welder_min_arc_segments"
                                            data-bind="value: plugin_settings().min_arc_segments">
                                     <a class="arc_welder_help" data-help-url="settings.min_arc_segments.md"
@@ -445,7 +445,7 @@
                             <div class="control-group" data-bind="visible:plugin_settings().firmware_compensation_enabled">
                                 <label class="control-label" for="arc_welder_mm_per_arc_segment"><strong>MM Per Arc Segment</strong></label>
                                 <div class="controls">
-                                    <input class="input-small" required="true" type="number" min="0.1" max="1000"
+                                    <input class="input-small" required type="number" min="0.1" max="1000"
                                            step="0.1" id="arc_welder_mm_per_arc_segment"
                                            data-bind="value: plugin_settings().mm_per_arc_segment">
                                     <a class="arc_welder_help" data-help-url="settings.mm_per_arc_segment.md"
@@ -542,7 +542,7 @@
                                     arc_welder.gcode_conversion module will take a log of time and will result in a huge
                                     log file. Only enable debug or verbose logging for the arc_welder.gcode_conversion
                                     module if you are trying to debug an issue, and <strong>don't forget to disable
-                                    it</strong> when you are finished.</span>
+                                    it</strong> when you are finished.
                                 </p>
                                 <div data-bind="visible:  plugin_settings().logging_configuration.enabled_loggers().length == 0"
                                      class="text-warning text-center">
@@ -565,16 +565,20 @@
                                     <div data-bind="visible:  plugin_settings().logging_configuration.enabled_loggers().length > 0, foreach: plugin_settings().logging_configuration.enabled_loggers">
                                         <div class="row-fluid" style="margin-bottom:5px;">
                                             <div class="span5">
-                                                <select data-bind="options: $parent.plugin_settings().logging_configuration.enabled_loggers,
-                                                    optionsText: 'name',
-                                                    optionsValue: 'name',
-                                                    value: name" disabled></select>
+                                                <label>
+                                                    <select data-bind="options: $parent.plugin_settings().logging_configuration.enabled_loggers,
+                                                        optionsText: 'name',
+                                                        optionsValue: 'name',
+                                                        value: name" disabled></select>
+                                                </label>
                                             </div>
                                             <div class="span5">
-                                                <select data-bind="options: $parent.data.logging_levels,
-                                                    optionsText: 'name',
-                                                    optionsValue: 'value',
-                                                    value: log_level"></select>
+                                                <label>
+                                                    <select data-bind="options: $parent.data.logging_levels,
+                                                        optionsText: 'name',
+                                                        optionsValue: 'value',
+                                                        value: log_level"></select>
+                                                </label>
                                             </div>
                                             <div class="span2">
                                                 <a title="Delete" class="btn btn-danger"
@@ -600,16 +604,16 @@
                                         </div>
                                         <div class="row-fluid">
                                             <div class="span5">
-                                                <select id="arc_welder_available_loggers" name="available_loggers"
-                                                        data-bind="options: available_loggers_sorted,
+                                                <label for="arc_welder_available_loggers"></label><select id="arc_welder_available_loggers" name="available_loggers"
+                                                                                                          data-bind="options: available_loggers_sorted,
                                             optionsText: 'name',
                                             optionsValue: 'name',
                                             value: logger_name_add"></select>
                                             </div>
                                             <div class="span5">
-                                                <select id="logging_profile_logging_level"
-                                                        name="logging_profile_logging_level"
-                                                        data-bind="options: data.logging_levels,
+                                                <label for="logging_profile_logging_level"></label><select id="logging_profile_logging_level"
+                                                                                                           name="logging_profile_logging_level"
+                                                                                                           data-bind="options: data.logging_levels,
                                             optionsText: 'name',
                                             optionsValue: 'value',
                                             value: logger_level_add"></select>
