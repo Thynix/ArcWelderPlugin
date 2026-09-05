@@ -1683,20 +1683,20 @@ class ArcWelderPlugin(
         displayName="Arc Welder: Anti-Stutter",
         # version check: github repository
         type="github_release",
-        user="FormerLurker",
+        user="Thynix",
         repo="ArcWelderPlugin",
-        pip="https://github.com/FormerLurker/ArcWelderPlugin/archive/{target_version}.zip",
-        stable_branch=dict(branch="master", commitish=["master"], name="Stable"),
+        pip="https://github.com/Thynix/ArcWelderPlugin/archive/{target_version}.zip",
+        stable_branch=dict(branch="main", commitish=["main"], name="Stable"),
         release_compare='custom',
         prerelease_branches=[
             dict(
                 branch="rc/maintenance",
-                commitish=["master", "rc/maintenance"],  # maintenance RCs (include master)
+                commitish=["main", "rc/maintenance"],  # maintenance RCs (include main)
                 name="Maintenance RCs"
             ),
             dict(
                 branch="rc/devel",
-                commitish=["master", "rc/maintenance", "rc/devel"],  # devel & maintenance RCs (include master)
+                commitish=["main", "rc/maintenance", "rc/devel"],  # devel & maintenance RCs (include main)
                 name="Devel RCs"
             )
         ],

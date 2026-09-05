@@ -2,7 +2,7 @@ Arc welder now has it's own repository of firmware information.  It uses this to
 
 Clicking the *Check for Updates* button will cause Arc Welder to request more recent firmware information and will download any associated help files automatically.  The *Firmware Library Version* will update if any new information is found.  Please note that Arc Welder does an automatic check for new firmware information when OctoPrint starts.
 
-If your firmware is not detected, consider creating an issue on the [ArcWelderPlugin repository](https://github.com/FormerLurker/ArcWelderPlugin/issues) including the following information:
+If your firmware is not detected, consider creating an issue on the [ArcWelderPlugin repository](https://github.com/Thynix/ArcWelderPlugin/issues) including the following information:
 
 * ```M115``` response from your printer - You can send ```M115``` via the OctoPrint terminal.  Just copy the printer's response including any additional lines that start with *Cap:*.  Here is an example:
 
