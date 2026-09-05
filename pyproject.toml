@@ -71,6 +71,10 @@ include = [
     "octoprint_arc_welder",
     "octoprint_arc_welder.*",
 ]
+exclude = [
+    "octoprint_arc_welder.test",
+    "octoprint_arc_welder.test.*",
+]
 
 [[tool.setuptools.ext-modules]]
 name = "PyArcWelder"
