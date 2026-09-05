@@ -24,15 +24,29 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-from pkg_resources import parse_version
 import os
 import ntpath
 from datetime import datetime
 import time
+from packaging.version import InvalidVersion
+from packaging.version import parse as _parse_version
 import octoprint_arc_welder.log as log
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
 logger = logging_configurator.get_logger(__name__)
+
+
+def parse_version(version_string):
+    """Lenient version parser.
+
+    ``packaging.version.parse`` raises on non-PEP 440 strings (common for
+    firmware version reports).  Callers here already treat ``None`` as
+    "could not parse", so return that instead of raising.
+    """
+    try:
+        return _parse_version(str(version_string))
+    except (InvalidVersion, TypeError):
+        return None
 
 
 def remove_extension_from_filename(filename):

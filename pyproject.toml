@@ -16,6 +16,7 @@ authors = [
 requires-python = ">=3.9,<4"
 dependencies = [
     "OctoPrint>=1.8.0",
+    "packaging",
 ]
 dynamic = [
     "license",

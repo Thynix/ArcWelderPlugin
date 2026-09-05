@@ -32,18 +32,12 @@ import json
 import os
 import shutil
 import copy
-import datetime
 from datetime import datetime
-from pkg_resources import parse_version
 import octoprint_arc_welder.utilities as utilities
 import octoprint_arc_welder.log as log
+from octoprint_arc_welder.utilities import parse_version
 
-# Ugly hack so I don't have to access a private type in python 2.7
-try:
-    from typing import Pattern
-    RegexPattern = Pattern
-except ImportError:
-    RegexPattern = type(re.compile('hello, world'))
+RegexPattern = re.Pattern
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
 logger = logging_configurator.get_logger(__name__)
