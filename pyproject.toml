@@ -36,8 +36,21 @@ content-type = "text/markdown"
 dev = [
     "build>=1.2",
     "go-task-bin>=3.40",
+    "pre-commit>=3.7",
     "pytest>=8",
+    "ruff>=0.16",
 ]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.codespell]
+ignore-words = ".codespell_ignore_words"
+skip = "./uv.lock,./octoprint_arc_welder/data/lib/c/*,./octoprint_arc_welder/static/js/showdown.min.js"
 
 [tool.uv]
 # Rebuild the PyArcWelder extension when its C/C++ sources or the build

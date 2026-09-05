@@ -1,0 +1,36 @@
+# Vendored / third-party code is excluded from formatting and spell-checking:
+#   - octoprint_arc_welder/data/lib/c/**  (upstream ArcWelderLib C++ sources)
+#   - octoprint_arc_welder/static/js/showdown.min.js  (minified library)
+exclude: |
+  (?x)^(
+    octoprint_arc_welder/data/lib/c/.*|
+    octoprint_arc_welder/static/js/showdown\.min\.js
+  )$
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.2
+    hooks:
+      - id: pyupgrade
+        args: ["--py39-plus"]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.6
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.2
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
