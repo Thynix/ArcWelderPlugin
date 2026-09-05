@@ -1261,8 +1261,10 @@ class FirmwareFileUpdater:
     @staticmethod
     def _get_url_for_version(version_info):
         # build up keys string
-        return "https://raw.githubusercontent.com/Thynix/ArcWelderPluginFirmwareInfo/main/{}/types.json?nonce={}".format(
-            version_info["version_folder"], uuid.uuid4().hex
+        return (
+            "https://raw.githubusercontent.com/Thynix/ArcWelderPluginFirmwareInfo/main/{}/types.json?nonce={}".format(
+                version_info["version_folder"], uuid.uuid4().hex
+            )
         )
 
     @staticmethod
