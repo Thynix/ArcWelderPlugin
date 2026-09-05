@@ -337,9 +337,8 @@ def is_version_in_versions(current_version_string, version_checks, compare_type=
     elif compare_type == "semantic":
         # Note that the version string must already be cleaned, if that is necessary
         current_value = parse_version(current_version_string)
-
-    if current_value is None:
-        # either we have no version info, or parsing failed
+    else:
+        logger.error("Unknown compare type '%s'.", compare_type)
         return False
 
     for version_check in [x.strip() for x in version_checks.split(",")]:
@@ -362,21 +361,28 @@ def is_version_in_versions(current_version_string, version_checks, compare_type=
 
         # Convert the compare string to something we can use logical operators on
         if compare_type == "date":
-            # parse the date into a datetime
             compare_value = parse_datetime(compare_string)
-        elif compare_type == "semantic":
-            # parse the version number
-            compare_value = parse_version(compare_string)
         else:
-            # this shouldn't happen, but handle it gracefully in case there are typos
-            logger.error("Unknown compare type '%s' for the version check '%s'.", compare_type, version_check)
+            compare_value = parse_version(compare_string)
 
-        if compare_value is None:
-            # this shouldn't happen, but typos occur.  Handle them gracefully
-            logger.error(
-                "Could not parse the compare value '%s' via the %s compare type.", compare_string, compare_type
-            )
-            continue
+        # When a value can't be parsed as a version (e.g. a Marlin bugfix branch
+        # reporting "bugfix-2.0.x", or an otherwise malformed firmware version):
+        if current_value is None or compare_value is None:
+            stripped_current = current_version_string.strip()
+            stripped_compare = compare_string.strip()
+            if logical_operator == "=":
+                if stripped_current == stripped_compare:
+                    continue
+                return False
+            if logical_operator == "!=":
+                if stripped_current != stripped_compare:
+                    continue
+                return False
+            # For ordering checks, treat an unparseable current version as older
+            # than any parseable one (matches the old pkg_resources behaviour).
+            if current_value is None and compare_value is not None and logical_operator in ("<", "<="):
+                continue
+            return False
 
         # see what kind of compare we will do
         # test the longest ones first
