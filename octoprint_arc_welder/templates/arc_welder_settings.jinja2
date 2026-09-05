@@ -70,7 +70,7 @@
                                                    data-bind="value: plugin_settings().resolution_mm">
                                             <span class="add-on">mm</span>
                                         </div>
-                                        (max deviation&nbsp;<strong>&#177;<span data-bind="text:  plugin_settings().resolution_mm()/2.0"></span>mm</strong>)
+                                        (max deviation&nbsp;<strong>±<span data-bind="text:  plugin_settings().resolution_mm()/2.0"></span>mm</strong>)
                                         <a class="arc_welder_help" data-help-url="settings.resolution_mm.md"
                                            data-help-title="Arc Resolution in MM"></a>
 
@@ -394,8 +394,6 @@
                                     </button>
                                     <a class="arc_welder_help" data-help-url="settings.check_for_updates.md"
                                        data-help-title="Check For Firmware Library Updates"></a>
-                                    <br/>
-
                                 </div>
                             </div>
                             <div class="control-group">
@@ -516,12 +514,12 @@
                             <div class="text-center">
                                 <button type="button" class="btn btn-large"
                                         data-bind="click: function(){clearLog(false);}"
-                                        title="Clear the most recent log."><i class="icon-trash"></i>Clear Log&hellip;
+                                        title="Clear the most recent log."><i class="icon-trash"></i>Clear Log…
                                 </button>
                                 <button type="button" class="btn btn-large"
                                         data-bind="click: function(){clearLog(true);}"
                                         title="Clear the most recent log and deletes any log file backups (up to 3)."><i
-                                        class="icon-trash"></i>Clear All Logs&hellip;
+                                        class="icon-trash"></i>Clear All Logs…
                                 </button>
                                 <a class="btn btn-large" title="Download the most recent logfile."
                                    href="/plugin/arc_welder/downloadFile?type=log"

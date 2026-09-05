@@ -142,7 +142,7 @@
                         </a>
                     </h5>
                     <div id="arc-welder-extrusion-retraction-stats" class="text-center">
-                        <pre class="text-center statistics-text"><div data-bind="html: combined_statistics.statistics_text"></div></pre>
+                        <pre class="text-center statistics-text" data-bind="html: combined_statistics.statistics_text"></pre>
                     </div>
                 </div>
             </div>
@@ -158,7 +158,7 @@
                         </a>
                     </h5>
                     <div id="arc-welder-extrusion-stats" class="text-center">
-                        <pre class="text-center statistics-text"><div data-bind="html: extrusion_statistics.statistics_text"></div></pre>
+                        <pre class="text-center statistics-text" data-bind="html: extrusion_statistics.statistics_text"></pre>
                     </div>
                 </div>
             </div>
@@ -174,7 +174,7 @@
                         </a>
                     </h5>
                     <div id="arc-welder-retraction-stats" class="text-center">
-                        <pre class="text-center statistics-text"><div data-bind="html: retraction_statistics.statistics_text"></div></pre>
+                        <pre class="text-center statistics-text" data-bind="html: retraction_statistics.statistics_text"></pre>
                     </div>
                 </div>
             </div>
@@ -190,10 +190,8 @@
                         </a>
                     </h5>
                     <div id="arc-welder-travel-stats" class="text-center">
-                        <pre class="text-center statistics-text">
-                            <div data-bind="visible: travel_statistics.source.count() != travel_statistics.target.count(), html: travel_statistics.statistics_text"></div>
-                            <div data-bind="visible: travel_statistics.source.count() == travel_statistics.target.count()">No travel moves were converted to arcs.  This is normal for a 3d print.</div>
-                        </pre>
+                        <pre class="text-center statistics-text" data-bind="visible: travel_statistics.source.count() != travel_statistics.target.count(), html: travel_statistics.statistics_text"></pre>
+                        <pre class="text-center statistics-text" data-bind="visible: travel_statistics.source.count() == travel_statistics.target.count()">No travel moves were converted to arcs. This is normal for a 3D print.</pre>
                     </div>
                 </div>
             </div>
