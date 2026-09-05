@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-    # 74+ is required for [[tool.setuptools.ext-modules]] support
-    "setuptools>=74",
+    # 77+ for [[tool.setuptools.ext-modules]] and PEP 639 license metadata
+    "setuptools>=77",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -14,12 +14,11 @@ authors = [
     { name = "Steve Dougherty", email = "steve@asksteved.com" },
 ]
 requires-python = ">=3.9,<4"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
 dependencies = [
     "OctoPrint>=1.8.0",
     "packaging",
-]
-dynamic = [
-    "license",
 ]
 
 [project.entry-points."octoprint.plugin"]
@@ -58,7 +57,6 @@ skip = "./.git,./uv.lock,./build,./dist,./*.egg-info,./octoprint_arc_welder/data
 # configuration change, not just when the version bumps.
 cache-keys = [
     { file = "pyproject.toml" },
-    { file = "setup.py" },
     { file = "octoprint_arc_welder/data/lib/c/**/*.cpp" },
     { file = "octoprint_arc_welder/data/lib/c/**/*.h" },
 ]
