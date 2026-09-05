@@ -45,8 +45,25 @@ line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
-# pyflakes + pycodestyle errors + import sorting + pyupgrade
-select = ["E4", "E7", "E9", "F", "I", "UP"]
+select = [
+    "E4", "E7", "E9",  # pycodestyle errors
+    "W",               # pycodestyle warnings
+    "F",               # pyflakes
+    "I",               # import sorting
+    "UP",              # pyupgrade
+    "B",               # flake8-bugbear
+    "C4",              # flake8-comprehensions
+    "SIM",             # flake8-simplify
+    "PERF",            # perflint
+    "RUF",             # ruff-specific
+]
+ignore = [
+    "C408",     # dict(...) call - used pervasively for settings trees
+    "RUF012",   # mutable class default - the class-level config dicts are constants
+    "SIM108",   # if-else -> ternary is not always clearer
+    "PERF203",  # try/except in a loop
+    "PERF401",  # manual list building - clearer than a comprehension here
+]
 
 [tool.codespell]
 ignore-words = ".codespell_ignore_words"

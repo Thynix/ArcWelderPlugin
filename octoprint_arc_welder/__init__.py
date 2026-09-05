@@ -441,7 +441,7 @@ class ArcWelderPlugin(
                 name = metadata["display"]
             else:
                 # probably don't need this, but better safe than sorry
-                path_part, name = self._file_manager.split_path(FileDestinations.LOCAL, path)
+                _path_part, name = self._file_manager.split_path(FileDestinations.LOCAL, path)
 
             # add the file and metadata to the processor queue
             success = self.add_file_to_preprocessor_queue(name, path, origin, True)
@@ -824,15 +824,9 @@ class ArcWelderPlugin(
         if is_manual:
             # always process if manually triggered.
             return True
-        setting = self._file_processing
-        if setting == ArcWelderPlugin.PROCESS_OPTION_ALWAYS:
-            # Always process if the 'always' option is selected
-            return True
-        # Can't do this yet, maybe later
-        # if setting == ArcWelderPlugin.PROCESS_OPTION_SLICER_UPLOADS and is_slicer_upload:
-        #    # process slicer uploads if the slicer option is selected
-        #    return True
-        return False
+        # Can't do this yet, maybe later: also process when PROCESS_OPTION_SLICER_UPLOADS
+        # is selected and the file came from a slicer.
+        return self._file_processing == ArcWelderPlugin.PROCESS_OPTION_ALWAYS
 
     def _get_delete_source(self):
         setting = self._delete_source
@@ -842,20 +836,15 @@ class ArcWelderPlugin(
         setting = self._select_after_processing
         if setting == ArcWelderPlugin.PROCESS_OPTION_ALWAYS:
             return True
-        if setting == ArcWelderPlugin.PROCESS_OPTION_UPLOAD_ONLY and is_upload:
-            return True
-        return False
+        return bool(setting == ArcWelderPlugin.PROCESS_OPTION_UPLOAD_ONLY and is_upload)
 
     def _get_print_after_processing(self, is_manual):
         setting = self._print_after_processing
         if setting == ArcWelderPlugin.PROCESS_OPTION_ALWAYS:
             return True
-        if is_manual and setting == ArcWelderPlugin.PROCESS_OPTION_MANUAL_ONLY:
-            return True
-        # Reserve for a future version
-        # if is_slicer_upload and setting == ArcWelderPlugin.PROCESS_OPTION_SLICER_UPLOADS:
-        #    return True
-        return False
+        # Reserve for a future version: also print when is_slicer_upload and
+        # PROCESS_OPTION_SLICER_UPLOADS is selected.
+        return is_manual and setting == ArcWelderPlugin.PROCESS_OPTION_MANUAL_ONLY
 
     def get_output_file_name_and_path(self, display_name, storage_path, gcode_comment_settings):
 
@@ -1052,7 +1041,7 @@ class ArcWelderPlugin(
             # see if the thumbnail exists
             if os.path.isfile(path):
                 # create a new path
-                pre, ext = os.path.splitext(gcode_filename)
+                pre, _ext = os.path.splitext(gcode_filename)
                 new_thumb_name = pre + ".png"
                 new_path = os.path.join(data_folder, new_thumb_name)
                 new_metadata = thumbnail_uri_root + new_thumb_name + "?" + f"{datetime.datetime.now():%Y%m%d%H%M%S}"
@@ -1187,7 +1176,7 @@ class ArcWelderPlugin(
         if (
             delete_after_processing
             and self._file_manager.file_exists(FileDestinations.LOCAL, octoprint_args["source_path"])
-            and not octoprint_args["source_path"] == octoprint_args["target_path"]
+            and octoprint_args["source_path"] != octoprint_args["target_path"]
         ):
             if not self._get_is_printing(octoprint_args["source_path"]):
                 # if the file is selected, deselect it.
@@ -1557,12 +1546,11 @@ class ArcWelderPlugin(
             # if "slicer_upload_type" in gcode_search_results:
             #    is_slicer_upload = True
             #    logger.info("Detected slicer upload via: %s", gcode_search_results["slicer_upload_type"])
-        if not gcode_comment_settings.get("weld", False):
-            # If the gcode file is set to weld, we don't want to enforce any of this
-            if not self._get_process_file(is_manual_request):
-                logger.debug("Cannot weld '%s', Welding is not enabled for uploaded files.", source_name)
-                # not set to auto process regularly uploaded file, exit
-                return
+        # If the gcode file explicitly asks to be welded we don't enforce this;
+        # otherwise skip files that aren't set to be auto-processed.
+        if not gcode_comment_settings.get("weld", False) and not self._get_process_file(is_manual_request):
+            logger.debug("Cannot weld '%s', Welding is not enabled for uploaded files.", source_name)
+            return
 
         logger.info("Adding %s to processor queue", source_path)
 
@@ -1579,21 +1567,24 @@ class ArcWelderPlugin(
             )
             return False
 
-        # if we are going to overwrite or delete the target file, cancel preprocessing
+        # If we are going to overwrite or delete the target file, cancel its
+        # analysis (guarding the private members we rely on).
         if (
-            task["octoprint_args"]["delete_after_processing"]
-            or task["octoprint_args"]["source_path"] == task["octoprint_args"]["target_path"]
+            (
+                task["octoprint_args"]["delete_after_processing"]
+                or task["octoprint_args"]["source_path"] == task["octoprint_args"]["target_path"]
+            )
+            and hasattr(self._file_manager, "_analysis_queue_entry")
+            and hasattr(self._file_manager, "_analysis_queue")
         ):
-            # these are private members, make sure they exist
-            if hasattr(self._file_manager, "_analysis_queue_entry") and hasattr(self._file_manager, "_analysis_queue"):
-                try:
-                    queue_entry = self._file_manager._analysis_queue_entry(
-                        FileDestinations.LOCAL, task["octoprint_args"]["source_path"]
-                    )
-                    self._file_manager._analysis_queue.dequeue(queue_entry)
-                except Exception:
-                    # this may be too broad, but I don't want any errors here!
-                    logger.exception("Unable to remove the currently processing file from the analysis queue.")
+            try:
+                queue_entry = self._file_manager._analysis_queue_entry(
+                    FileDestinations.LOCAL, task["octoprint_args"]["source_path"]
+                )
+                self._file_manager._analysis_queue.dequeue(queue_entry)
+            except Exception:
+                # this may be too broad, but I don't want any errors here!
+                logger.exception("Unable to remove the currently processing file from the analysis queue.")
         if self._show_queued_notification:
             message = "Successfully queued {} for processing.".format(task["octoprint_args"]["source_name"])
             if self._printer.is_printing():

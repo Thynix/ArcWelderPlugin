@@ -120,10 +120,7 @@ class LoggingConfigurator(metaclass=Singleton):
         return log
 
     def get_logger_names(self):
-        logger_names = []
-        for logger_name in self.child_loggers:
-            logger_names.append(logger_name)
-        return logger_names
+        return list(self.child_loggers)
 
     def get_root_logger(self):
         return self._root_logger

@@ -402,9 +402,8 @@ def is_version_in_versions(current_version_string, version_checks, compare_type=
         elif logical_operator == "<":
             if current_value < compare_value:
                 continue
-        elif logical_operator == "=":
-            if current_value == compare_value:
-                continue
+        elif logical_operator == "=" and current_value == compare_value:
+            continue
         # either there is an unknown logical operator, or the compare failed
         return False
     # all checks have passed, this is the right version

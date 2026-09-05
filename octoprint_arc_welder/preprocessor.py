@@ -89,7 +89,7 @@ class PreProcessorWorker(threading.Thread):
                 task = self._incoming_task_queue.get(False)
                 logger.info("Preprocessing of %s has been cancelled.", task["processor_args"]["source_path"])
             # cancel all tasks in the dequeue
-            while not len(self._task_deque) == 0:
+            while len(self._task_deque) != 0:
                 task = self._task_deque.pop()
                 logger.info("Preprocessing of %s has been cancelled.", task["processor_args"]["source_path"])
 

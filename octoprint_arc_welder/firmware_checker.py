@@ -328,7 +328,7 @@ class FirmwareChecker:
             result["version"] = firmware_version
 
         # call any custom arcs_enabled function
-        if result.get("arcs_enabled", None) is None:
+        if result.get("arcs_enabled") is None:
             arcs_enabled = self._get_arcs_enabled_match(result, firmware)
             result["arcs_enabled"] = arcs_enabled
             if arcs_enabled:
@@ -416,16 +416,10 @@ class FirmwareChecker:
                     is_firmware_type_info,
                 )
                 return False
-        if (
-            not is_regex
-            and parsed_response
-            and is_firmware_type(parsed_response)
-            or is_regex
-            and regex
-            and FirmwareChecker.get_regex_check(firmware_check_result, regex, regex_key)
-        ):
-            return True
-        return False
+        return bool(
+            (not is_regex and parsed_response and is_firmware_type(parsed_response))
+            or (is_regex and regex and FirmwareChecker.get_regex_check(firmware_check_result, regex, regex_key))
+        )
 
     def _get_firmware_version_match(self, firmware_check_result, firmware_type):
         get_version_info = firmware_type.get("functions", {}).get("version", None)
@@ -1121,8 +1115,10 @@ class PrinterRequest:
         check_sent_function=None,
         wait_for_ok=False,
         append_final_response=False,
-        tags=set(),
+        tags=None,
     ):
+        if tags is None:
+            tags = set()
         self.name = name
         self.commands = commands
         self.check_sent_function = check_sent_function
@@ -1254,7 +1250,7 @@ class FirmwareFileUpdater:
             requests.exceptions.ConnectTimeout,
         ) as e:
             message = "An error occurred while retrieving firmware types versions from the server."
-            raise FirmwareFileUpdaterError("profiles-retrieval-error", message, cause=e)
+            raise FirmwareFileUpdaterError("profiles-retrieval-error", message, cause=e) from e
         if "content-length" in r.headers and r.headers["content-length"] == 0:
             message = "No Octolapse version data was returned while requesting profiles"
             raise FirmwareFileUpdaterError("no-data", message)
@@ -1292,7 +1288,7 @@ class FirmwareFileUpdater:
     def _get_docs_for_version(version_info, firmware_types):
         document_names = []
         # iterate the firmware type and versions and extract all of the help file names
-        for firmware_type_key, firmware_type in firmware_types["types"].items():
+        for firmware_type in firmware_types["types"].values():
             if "help_file" in firmware_type:
                 document_names.append(firmware_type["help_file"])
             if "versions" in firmware_type:
