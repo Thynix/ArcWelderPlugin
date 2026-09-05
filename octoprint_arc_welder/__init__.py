@@ -1615,7 +1615,7 @@ class ArcWelderPlugin(
         repo="ArcWelderPlugin",
         pip="https://github.com/Thynix/ArcWelderPlugin/archive/{target_version}.zip",
         stable_branch=dict(branch="main", commitish=["main"], name="Stable"),
-        release_compare="custom",
+        release_compare="python",
         prerelease_branches=[
             dict(
                 branch="rc/maintenance",
