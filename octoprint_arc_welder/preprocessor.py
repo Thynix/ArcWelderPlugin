@@ -24,8 +24,6 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-from __future__ import absolute_import
-from __future__ import unicode_literals
 import threading
 from multiprocessing import Process, Pipe
 import octoprint_arc_welder.utilities as utilities
@@ -37,10 +35,7 @@ import os
 import uuid
 import PyArcWelder as converter # must import AFTER log, else this will fail to log and may crash
 from collections import deque
-try:
-    import queue
-except ImportError:
-    import Queue as queue
+import queue
 
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")

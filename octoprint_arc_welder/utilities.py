@@ -24,13 +24,8 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from builtins import dict, str
 from pkg_resources import parse_version
-import six
 import os
-import sys
 import ntpath
 from datetime import datetime
 import time
@@ -67,14 +62,10 @@ def dict_encode(d):
     def dict_key_value_encode(s):
         if isinstance(s, dict):
             return dict_encode(s)
-        try:
-            if isinstance(s, str):
-                return unicode(s, errors='ignore', encoding='utf-8')
-        except NameError:  # Python 3
-            if isinstance(s, bytes):
-                return str(s, errors='ignore', encoding='utf-8')
+        if isinstance(s, bytes):
+            return str(s, errors='ignore', encoding='utf-8')
         return s
-    return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in six.iteritems(d)}
+    return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in d.items()}
 
 
 def does_file_contain_text(file_path, search_text, lines_to_search=100, convert_case=True):
@@ -259,10 +250,7 @@ def parse_settings_comment(line, tag, settings_dict):
     # We have found the tag.  Extract the parameters
     parameters_string = line[index:].strip()
     import csv
-    if sys.version_info[0] < 3:
-        from StringIO import StringIO
-    else:
-        from io import StringIO
+    from io import StringIO
     try:
         separated_parameters = csv.reader(
             StringIO(parameters_string),

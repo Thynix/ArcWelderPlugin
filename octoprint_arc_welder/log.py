@@ -24,11 +24,9 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-from __future__ import unicode_literals
 import logging
 import datetime as datetime
 import os
-import six
 from octoprint.logging.handlers import (
     AsyncLogHandlerMixin,
     CleaningTimedRotatingFileHandler,
@@ -101,8 +99,7 @@ class ArcWelderFileHandler(CleaningTimedRotatingFileHandler, AsyncLogHandlerMixi
         self.backupCount = backup_count
 
 
-@six.add_metaclass(Singleton)
-class LoggingConfigurator(object):
+class LoggingConfigurator(metaclass=Singleton):
     BACKUP_COUNT = 3
 
     def __init__(self, root_logger_name, log_entry_prefix, log_file_prefix):
@@ -192,13 +189,10 @@ class LoggingConfigurator(object):
         self._root_logger.setLevel(logging.NOTSET)
 
         if log_file_path is not None:
-            # ensure that the logging path and file exist
+            # ensure that the logging directory exists
             directory = os.path.dirname(log_file_path)
-            import distutils.dir_util
-
-            distutils.dir_util.mkpath(directory)
-            if not os.path.isfile(log_file_path):
-                open(log_file_path, "w").close()
+            if directory:
+                os.makedirs(directory, exist_ok=True)
 
             # add the file handler
             self._add_file_handler(log_file_path, logging.NOTSET)

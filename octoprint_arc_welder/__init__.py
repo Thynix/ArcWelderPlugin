@@ -24,18 +24,13 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import time
 import datetime
-from distutils.version import LooseVersion
 import copy
-from six import string_types
-from past.builtins import xrange
 from flask import request, jsonify
 import os
 import octoprint.plugin
+import octoprint.access.permissions as permissions
 import tornado
 from shutil import copyfile
 from octoprint.server.util.tornado import LargeResponseHandler
@@ -49,17 +44,8 @@ import octoprint_arc_welder.preprocessor as preprocessor
 import octoprint_arc_welder.utilities as utilities
 import octoprint_arc_welder.firmware_checker as firmware_checker
 
-# stupid python 2/python 3 compatibility imports
-
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
-try:
-    import urllib.parse as urllibparse
-except ImportError:
-    import urllib as urllibparse
+import queue
+import urllib.parse as urllibparse
 
 
 
@@ -82,14 +68,7 @@ class ArcWelderPlugin(
     octoprint.plugin.EventHandlerPlugin
 ):
 
-    if LooseVersion(octoprint.server.VERSION) >= LooseVersion("1.4"):
-        import octoprint.access.permissions as permissions
-
-        admin_permission = permissions.Permissions.ADMIN
-    else:
-        import flask_principal
-
-        admin_permission = flask_principal.Permission(flask_principal.RoleNeed("admin"))
+    admin_permission = permissions.Permissions.ADMIN
 
     PROCESS_OPTION_ALWAYS = "always"
     PROCESS_OPTION_UPLOAD_ONLY = "uploads-only"
@@ -1027,13 +1006,13 @@ class ArcWelderPlugin(
         # Add compatibility for ultimaker thumbnail package
         has_ultimaker_format_package_thumbnail = (
             "thumbnail" in additional_metadata
-            and isinstance(additional_metadata['thumbnail'], string_types)
+            and isinstance(additional_metadata['thumbnail'], str)
             and additional_metadata['thumbnail'].startswith('plugin/UltimakerFormatPackage/thumbnail/')
         )
         # Add compatibility for PrusaSlicer thumbnail package
         has_prusa_slicer_thumbnail = (
                 "thumbnail" in additional_metadata
-                and isinstance(additional_metadata['thumbnail'], string_types)
+                and isinstance(additional_metadata['thumbnail'], str)
                 and additional_metadata['thumbnail'].startswith('plugin/prusaslicerthumbnails/thumbnail/')
         )
 
@@ -1712,20 +1691,9 @@ class ArcWelderPlugin(
         return True
 
     def register_custom_routes(self, server_routes, *args, **kwargs):
-        # version specific permission validator
-        if LooseVersion(octoprint.server.VERSION) >= LooseVersion("1.4"):
-            admin_validation_chain = [
-                util.tornado.access_validation_factory(app, util.flask.admin_validator),
-            ]
-        else:
-            # the concept of granular permissions does not exist in this version of Octoprint.  Fallback to the
-            # admin role
-            def admin_permission_validator(flask_request):
-                user = util.flask.get_flask_user_from_request(flask_request)
-                if user is None or not user.is_authenticated() or not user.is_admin():
-                    raise tornado.web.HTTPError(403)
-            permission_validator = admin_permission_validator
-            admin_validation_chain = [util.tornado.access_validation_factory(app, permission_validator), ]
+        admin_validation_chain = [
+            util.tornado.access_validation_factory(app, util.flask.admin_validator),
+        ]
         return [
             (
                 r"/downloadFile",
@@ -1765,31 +1733,6 @@ class ArcWelderPlugin(
     )
 
     def get_release_info(self):
-        # Starting with V1.5.0 prerelease branches are supported!
-        if LooseVersion(octoprint.server.VERSION) < LooseVersion("1.5.0"):
-            # Hack to attempt to get pre-release branches to work prior to 1.5.0
-            # get the checkout type from the software updater
-            prerelease_channel = None
-            is_prerelease = False
-            # get this for reference.  Eventually I'll have to use it!
-            # is the software update set to prerelease?
-
-            if self._settings.global_get(["plugins", "softwareupdate", "checks", "octoprint", "prerelease"]):
-                # If it's a prerelease, look at the channel and configure the proper branch for Arc Welder
-                prerelease_channel = self._settings.global_get(
-                    ["plugins", "softwareupdate", "checks", "octoprint", "prerelease_channel"]
-                )
-                if prerelease_channel == "rc/maintenance":
-                    is_prerelease = True
-                    prerelease_channel = "rc/maintenance"
-                elif prerelease_channel == "rc/devel":
-                    is_prerelease = True
-                    prerelease_channel = "rc/devel"
-
-            ArcWelderPlugin.arc_welder_update_info["prerelease"] = is_prerelease
-            if prerelease_channel is not None:
-                ArcWelderPlugin.arc_welder_update_info["prerelease_channel"] = prerelease_channel
-
         ArcWelderPlugin.arc_welder_update_info["displayVersion"] = self._plugin_version
         ArcWelderPlugin.arc_welder_update_info["current"] = self._plugin_version
         return dict(
@@ -1818,7 +1761,7 @@ class ArcWelderPlugin(
                 logger.exception("on_gcode_received failed.")
         return line
 
-__plugin_pythoncompat__ = ">=2.7,<4"
+__plugin_pythoncompat__ = ">=3.7,<4"
 __plugin_implementation__ = ArcWelderPlugin()
 
 
