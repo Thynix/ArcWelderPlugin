@@ -27,17 +27,13 @@
 import time
 import datetime
 import copy
-from flask import request, jsonify
+from flask import request, jsonify, abort, send_file
 import os
 import octoprint.plugin
 import octoprint.access.permissions as permissions
-import tornado
 from shutil import copyfile
-from octoprint.server.util.tornado import LargeResponseHandler
-from octoprint.server import util, app
 from octoprint.filemanager import FileDestinations
 from octoprint.filemanager.storage import StorageError
-from octoprint.server.util.flask import restricted_access
 from octoprint.events import Events
 import octoprint_arc_welder.log as log
 import octoprint_arc_welder.preprocessor as preprocessor
@@ -67,8 +63,6 @@ class ArcWelderPlugin(
     octoprint.plugin.BlueprintPlugin,
     octoprint.plugin.EventHandlerPlugin
 ):
-
-    admin_permission = permissions.Permissions.ADMIN
 
     PROCESS_OPTION_ALWAYS = "always"
     PROCESS_OPTION_UPLOAD_ONLY = "uploads-only"
@@ -407,147 +401,143 @@ class ArcWelderPlugin(
         ]
 
     # Blueprints
+    def is_blueprint_protected(self):
+        return True
+
+    def is_blueprint_csrf_protected(self):
+        return True
+
     @octoprint.plugin.BlueprintPlugin.route("/cancelPreprocessing", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def cancel_preprocessing_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            if not self._preprocessor_worker:
-                return jsonify({"success": False, "error": "The processor worker does not exist.  Try again later or restart Octoprint."})
-            request_values = request.get_json()
-            cancel_all = request_values.get("cancel_all", False)
-            job_guid = request_values.get("guid", "")
-            if cancel_all:
-                logger.info("Cancelling all processing tasks.")
-                self._cancel_all_processing = True
-            else:
-                logger.info("Cancelling job with guid %s.", job_guid)
-                self._process_guids_to_cancel.append(job_guid);
-            return jsonify({"success": True})
+        if not self._preprocessor_worker:
+            return jsonify({"success": False, "error": "The processor worker does not exist.  Try again later or restart Octoprint."})
+        request_values = request.get_json()
+        cancel_all = request_values.get("cancel_all", False)
+        job_guid = request_values.get("guid", "")
+        if cancel_all:
+            logger.info("Cancelling all processing tasks.")
+            self._cancel_all_processing = True
+        else:
+            logger.info("Cancelling job with guid %s.", job_guid)
+            self._process_guids_to_cancel.append(job_guid);
+        return jsonify({"success": True})
 
     @octoprint.plugin.BlueprintPlugin.route("/clearLog", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def clear_log_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            request_values = request.get_json()
-            clear_all = request_values["clear_all"]
-            if clear_all:
-                logger.info("Clearing all log files.")
-            else:
-                logger.info("Rolling over most recent log.")
+        request_values = request.get_json()
+        clear_all = request_values["clear_all"]
+        if clear_all:
+            logger.info("Clearing all log files.")
+        else:
+            logger.info("Rolling over most recent log.")
 
-            logging_configurator.do_rollover(clear_all=clear_all)
-            return jsonify({"success": True})
+        logging_configurator.do_rollover(clear_all=clear_all)
+        return jsonify({"success": True})
 
     # Preprocess from file sidebar
     @octoprint.plugin.BlueprintPlugin.route("/process", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def process_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            if not self._enabled:
-                return jsonify({"success": False, "message": "Arc Welder is Disabled."})
-            try:
-                request_values = request.get_json()
-                path = urllibparse.unquote(request_values["path"])
-                origin = request_values["origin"]
-                # I think this is the easiest way to get the name.
+        if not self._enabled:
+            return jsonify({"success": False, "message": "Arc Welder is Disabled."})
+        try:
+            request_values = request.get_json()
+            path = urllibparse.unquote(request_values["path"])
+            origin = request_values["origin"]
+            # I think this is the easiest way to get the name.
 
-                metadata = self._file_manager.get_metadata(FileDestinations.LOCAL, path)
-                if metadata is not None and "display" in metadata:
-                    name = metadata["display"]
-                else:
-                    # probably don't need this, but better safe than sorry
-                    path_part, name = self._file_manager.split_path(FileDestinations.LOCAL, path)
+            metadata = self._file_manager.get_metadata(FileDestinations.LOCAL, path)
+            if metadata is not None and "display" in metadata:
+                name = metadata["display"]
+            else:
+                # probably don't need this, but better safe than sorry
+                path_part, name = self._file_manager.split_path(FileDestinations.LOCAL, path)
 
-                # add the file and metadata to the processor queue
-                success = self.add_file_to_preprocessor_queue(name, path, origin, True)
-            except Exception as e:
-                logger.exception("Could not process file manually.")
-                raise e
-            return jsonify({"success": success})
-
+            # add the file and metadata to the processor queue
+            success = self.add_file_to_preprocessor_queue(name, path, origin, True)
+        except Exception as e:
+            logger.exception("Could not process file manually.")
+            raise e
+        return jsonify({"success": success})
 
     @octoprint.plugin.BlueprintPlugin.route("/restoreDefaultSettings", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def restore_default_settings_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            self._settings.set([], self.settings_default)
-            # force save the settings and trigger a SettingsUpdated event
-            self._settings.save(force=True, trigger_event=True)
-            return jsonify({"success": True})
+        self._settings.set([], self.settings_default)
+        # force save the settings and trigger a SettingsUpdated event
+        self._settings.save(force=True, trigger_event=True)
+        return jsonify({"success": True})
 
     @octoprint.plugin.BlueprintPlugin.route("/checkFirmware", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def check_firmware_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            logger.debug("Manual firmware request received.")
-            return jsonify({"success": self.check_firmware()})
+        logger.debug("Manual firmware request received.")
+        return jsonify({"success": self.check_firmware()})
 
     @octoprint.plugin.BlueprintPlugin.route("/getFirmwareVersion", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def get_firmware_version_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            response = {
-                "firmware_info": None,
-                "firmware_types_info": None,
-                "success": False,
-            }
-            if self._firmware_checker:
-                firmware_types_info = self._firmware_checker.firmware_types_info
-                if firmware_types_info and "last_checked_date" in firmware_types_info:
-                    firmware_types_info["last_checked_date"] = (
-                        utilities.to_local_date_time_string(firmware_types_info["last_checked_date"])
-                    )
-                response["firmware_info"] = self._firmware_checker.current_firmware_info
-                response["firmware_types_info"] = firmware_types_info
-                response["success"] = True
-            return jsonify(response)
+        response = {
+            "firmware_info": None,
+            "firmware_types_info": None,
+            "success": False,
+        }
+        if self._firmware_checker:
+            firmware_types_info = self._firmware_checker.firmware_types_info
+            if firmware_types_info and "last_checked_date" in firmware_types_info:
+                firmware_types_info["last_checked_date"] = (
+                    utilities.to_local_date_time_string(firmware_types_info["last_checked_date"])
+                )
+            response["firmware_info"] = self._firmware_checker.current_firmware_info
+            response["firmware_types_info"] = firmware_types_info
+            response["success"] = True
+        return jsonify(response)
 
     @octoprint.plugin.BlueprintPlugin.route("/getPreprocessingTasks", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def get_preprocessing_tasks_request(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            self.send_preprocessing_tasks_update()
-            return jsonify({"success": True})
+        self.send_preprocessing_tasks_update()
+        return jsonify({"success": True})
 
     @octoprint.plugin.BlueprintPlugin.route("/checkForFirmwareInfoUpdates", methods=["POST"])
-    @restricted_access
+    @permissions.Permissions.ADMIN.require(403)
     def check_for_firmware_info_update(self):
-        with ArcWelderPlugin.admin_permission.require(http_exception=403):
-            result = {
-                "success": False,
-                "new_version": None,
-                "firmware_info": None,
-                "firmware_types_info": None,
-                "error": None
-            }
-            if self._firmware_checker:
-                update_results = self._firmware_checker.check_for_updates()
-                current_firmware_info = self._firmware_checker.current_firmware_info
-                firmware_types_info = self._firmware_checker.firmware_types_info
-                if firmware_types_info and "last_checked_date" in firmware_types_info:
-                    firmware_types_info["last_checked_date"] = (
-                        utilities.to_local_date_time_string(firmware_types_info["last_checked_date"])
-                    )
-                result["firmware_types_info"] = firmware_types_info
-                result["firmware_info"] = current_firmware_info
-                if update_results["success"]:
-                    result["new_version"] = update_results["new_version"]
-                    result["success"] = True
-                else:
-                    result["error"] = update_results["error"]
-            return jsonify(result)
+        result = {
+            "success": False,
+            "new_version": None,
+            "firmware_info": None,
+            "firmware_types_info": None,
+            "error": None
+        }
+        if self._firmware_checker:
+            update_results = self._firmware_checker.check_for_updates()
+            current_firmware_info = self._firmware_checker.current_firmware_info
+            firmware_types_info = self._firmware_checker.firmware_types_info
+            if firmware_types_info and "last_checked_date" in firmware_types_info:
+                firmware_types_info["last_checked_date"] = (
+                    utilities.to_local_date_time_string(firmware_types_info["last_checked_date"])
+                )
+            result["firmware_types_info"] = firmware_types_info
+            result["firmware_info"] = current_firmware_info
+            if update_results["success"]:
+                result["new_version"] = update_results["new_version"]
+                result["success"] = True
+            else:
+                result["error"] = update_results["error"]
+        return jsonify(result)
 
-    # Callback Handler for /downloadFile
-    # uses the ArcWelderLargeResponseHandler
-    def download_file_request(self, request_handler):
-        download_file_path = None
-        # get the args
-        file_type = request_handler.get_query_arguments('type')[0]
-        if file_type == 'log':
-            full_path = self._log_file_path
-        if full_path is None or not os.path.isfile(full_path):
-            raise tornado.web.HTTPError(404)
-        return full_path
+    @octoprint.plugin.BlueprintPlugin.route("/downloadFile", methods=["GET"])
+    @permissions.Permissions.ADMIN.require(403)
+    def download_file_request(self):
+        if (
+            request.args.get("type") != "log"
+            or not self._log_file_path
+            or not os.path.isfile(self._log_file_path)
+        ):
+            abort(404)
+        return send_file(self._log_file_path, as_attachment=True)
 
     def send_preprocessing_tasks_update(self):
         response = {
@@ -1690,24 +1680,7 @@ class ArcWelderPlugin(
         self.send_preprocessing_tasks_update()
         return True
 
-    def register_custom_routes(self, server_routes, *args, **kwargs):
-        admin_validation_chain = [
-            util.tornado.access_validation_factory(app, util.flask.admin_validator),
-        ]
-        return [
-            (
-                r"/downloadFile",
-                ArcWelderLargeResponseHandler,
-                dict(
-                    request_callback=self.download_file_request,
-                    as_attachment=True,
-                    access_validation=util.tornado.validation_chain(*admin_validation_chain)
-                )
-
-            )
-        ]
-
-        # ~~ software update hook
+    # ~~ software update hook
 
     arc_welder_update_info = dict(
         displayName="Arc Welder: Anti-Stutter",
@@ -1771,58 +1744,9 @@ def __plugin_load__():
     global __plugin_hooks__
     __plugin_hooks__ = {
         "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-        "octoprint.server.http.routes": __plugin_implementation__.register_custom_routes,
         "octoprint.comm.protocol.gcode.received": (__plugin_implementation__.on_gcode_received, -1),
         "octoprint.comm.protocol.gcode.sent": (__plugin_implementation__.on_gcode_sent, -1),
     }
-
-
-class ArcWelderLargeResponseHandler(LargeResponseHandler):
-
-    def initialize(self, request_callback, as_attachment=False, access_validation=None, default_filename=None,
-        on_before_request=None, on_after_request=None
-    ):
-        super(ArcWelderLargeResponseHandler, self).initialize(
-            '', default_filename=default_filename, as_attachment=as_attachment, allow_client_caching=False,
-            access_validation=access_validation, path_validation=None, etag_generator=None,
-            name_generator=self.name_generator, mime_type_guesser=None)
-        self.download_file_name = None
-        self._before_request_callback = on_before_request
-        self._request_callback = request_callback
-        self._after_request_callback = on_after_request
-        self.after_request_internal = None
-        self.after_request_internal_args = None
-
-    def name_generator(self, path):
-        if self.download_file_name is not None:
-            return self.download_file_name
-
-    def prepare(self):
-        if self._before_request_callback:
-            self._before_request_callback()
-
-    def get(self, include_body=True):
-        if self._access_validation is not None:
-            self._access_validation(self.request)
-
-        if "cookie" in self.request.arguments:
-            self.set_cookie(self.request.arguments["cookie"][0], "true", path="/")
-        full_path = self._request_callback(self)
-        self.root = os.path.dirname(full_path)
-
-        # if the file does not exist, return a 404
-        if not os.path.isfile(full_path):
-            raise tornado.web.HTTPError(404)
-
-        # return the file
-        return tornado.web.StaticFileHandler.get(self, full_path, include_body=include_body)
-
-    def on_finish(self):
-            if self.after_request_internal:
-                self.after_request_internal(**self.after_request_internal_args)
-
-            if self._after_request_callback:
-                self._after_request_callback()
 
 
 class TargetFileSaveError(Exception):
