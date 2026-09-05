@@ -9,4 +9,3 @@ If you wish to start your print directly from your slicer, using *Print After Au
 Files that will print after processing will be labeled with a printer icon (<i class="fa fa-print"></i>).  Note that not all files processed by *Arc Welder* that are flagged for printing will actually print.  Only one file is allowed to print from the queue at a time, which will cancel the print option for all subsequent files.
 
 Note: Arcwelder can only print the target file if OctoPrint is not printing.  If a print is started while arc-welder is processing, or if any files are queued for processing, this option will be disabled for those files to prevent a new print from starting immediately after the current print completes.
-

@@ -1,4 +1,3 @@
-# coding=utf-8
 # #################################################################################
 # Arc Welder: Anti-Stutter
 #
@@ -24,19 +23,18 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-import threading
-from multiprocessing import Process, Pipe
-import octoprint_arc_welder.utilities as utilities
-import octoprint_arc_welder.log as log
-import time
-import shutil
 import copy
 import os
-import uuid
-import PyArcWelder as converter # must import AFTER log, else this will fail to log and may crash
-from collections import deque
 import queue
+import shutil
+import threading
+import time
+import uuid
+from collections import deque
 
+import PyArcWelder as converter  # must import AFTER log, else this will fail to log and may crash
+
+from octoprint_arc_welder import log, utilities
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
 logger = logging_configurator.get_logger(__name__)
@@ -44,7 +42,8 @@ logger = logging_configurator.get_logger(__name__)
 
 class PreProcessorWorker(threading.Thread):
     """Watch for rendering jobs via a rendering queue.  Extract jobs from the queue, and spawn a rendering thread,
-       one at a time for each rendering job.  Notify the calling thread of the number of jobs in the queue on demand."""
+    one at a time for each rendering job.  Notify the calling thread of the number of jobs in the queue on demand."""
+
     def __init__(
         self,
         data_folder,
@@ -56,9 +55,9 @@ class PreProcessorWorker(threading.Thread):
         failed_callback,
         success_callback,
         completed_callback,
-        get_cancellations_callback
+        get_cancellations_callback,
     ):
-        super(PreProcessorWorker, self).__init__()
+        super().__init__()
         self._source_path = os.path.join(data_folder, "source.gcode")
         self._target_path = os.path.join(data_folder, "target.gcode")
         self._processing_file_path = None
@@ -96,11 +95,7 @@ class PreProcessorWorker(threading.Thread):
 
     def is_processing(self):
         with self.r_lock:
-            return (
-                not self._incoming_task_queue.empty()
-                or self._is_processing
-                or len(self._task_deque) != 0
-            )
+            return not self._incoming_task_queue.empty() or self._is_processing or len(self._task_deque) != 0
 
     def get_tasks(self):
         results = []
@@ -109,19 +104,13 @@ class PreProcessorWorker(threading.Thread):
                 # copy the task so the receiver can't mess with it
                 temp_task = copy.deepcopy(self._current_task)
                 # remove the progress callback, it is not json serializable
-                task = {
-                    "is_processing": True,
-                    "task": temp_task
-                }
+                task = {"is_processing": True, "task": temp_task}
                 results.append(task)
             for existing_task in reversed(self._task_deque):
                 # copy the task so the receiver can't mess with it
                 temp_task = copy.deepcopy(existing_task)
                 # remove the progress callback, it is not json serializable
-                task = {
-                    "is_processing": False,
-                    "task": temp_task
-                }
+                task = {"is_processing": False, "task": temp_task}
                 results.append(task)
         return results
 
@@ -129,20 +118,18 @@ class PreProcessorWorker(threading.Thread):
         with self.r_lock:
             # first check for any tasks to cancel
             self._check_for_cancelled_tasks()
-            results = {
-                "success": False,
-                "error_message": ""
-            }
+            results = {"success": False, "error_message": ""}
             new_task["guid"] = str(uuid.uuid4())
             source_path_on_disk = new_task["processor_args"]["source_path"]
             logger.info("Adding a new task to the processor queue at %s.", source_path_on_disk)
             # make sure the task isn't already being processed
             if (
-                    self._current_task and
-                    self._current_task["octoprint_args"]["source_path"] == new_task["octoprint_args"]["source_path"]
+                self._current_task
+                and self._current_task["octoprint_args"]["source_path"] == new_task["octoprint_args"]["source_path"]
             ):
-                results["error_message"] = "This file is currently processing and cannot be added again until " \
-                                           "processing completes. "
+                results["error_message"] = (
+                    "This file is currently processing and cannot be added again until processing completes. "
+                )
                 logger.info(results["error_message"])
                 return results
             for existing_task in self._task_deque:
@@ -155,8 +142,10 @@ class PreProcessorWorker(threading.Thread):
             if new_task["octoprint_args"]["print_after_processing"]:
                 if self._is_printing_callback():
                     new_task["octoprint_args"]["print_after_processing"] = False
-                    logger.info("The task was marked for printing after completion, but this has been cancelled "
-                                "because a print is currently running")
+                    logger.info(
+                        "The task was marked for printing after completion, but this has been cancelled "
+                        "because a print is currently running"
+                    )
                 else:
                     logger.info("This task will be printed after preprocessing is complete.")
             self._task_deque.appendleft(new_task)
@@ -228,10 +217,13 @@ class PreProcessorWorker(threading.Thread):
                 success = False
                 try:
                     self._process(task)
-                except Exception as e:
+                except Exception:
                     logger.exception("An unhandled exception occurred while preprocessing the gcode file.")
-                    message = "An error occurred while preprocessing {0}.  Check plugin_arc_welder.log for details.".\
-                        format(task["processor_args"]["source_path"])
+                    message = (
+                        "An error occurred while preprocessing {0}.  Check plugin_arc_welder.log for details.".format(
+                            task["processor_args"]["source_path"]
+                        )
+                    )
                     self._failed_callback(task, message)
                 finally:
                     with self.r_lock:
@@ -241,17 +233,18 @@ class PreProcessorWorker(threading.Thread):
 
             except queue.Empty:
                 pass
-            
+
     def _process(self, task):
         self._start_callback(task)
         logger.info(
             "Copying source gcode file at %s to %s for processing.",
             task["processor_args"]["source_path"],
-            self._source_path
+            self._source_path,
         )
         if not os.path.exists(task["processor_args"]["source_path"]):
-            message = "The source file path at '{0}' does not exist.  It may have been moved or deleted". \
-                format(task["processor_args"]["source_path"])
+            message = "The source file path at '{0}' does not exist.  It may have been moved or deleted".format(
+                task["processor_args"]["source_path"]
+            )
             self._failed_callback(task, message)
             return
         shutil.copy(task["processor_args"]["source_path"], self._source_path)
@@ -261,9 +254,7 @@ class PreProcessorWorker(threading.Thread):
         task["processor_args"]["source_path"] = self._source_path
         task["processor_args"]["target_path"] = self._target_path
         # Convert the file via the C++ extension
-        logger.info(
-            "Calling conversion routine on copied source gcode file to target at %s.", self._source_path
-        )
+        logger.info("Calling conversion routine on copied source gcode file to target at %s.", self._source_path)
         try:
             # create a new dict with the progress callback.  If this is not done we will have trouble
             # reporting the tasks later due to a deepcopy threading lock error
@@ -272,7 +263,7 @@ class PreProcessorWorker(threading.Thread):
             processor_args.update(task["processor_args"])
             processor_args.update({"on_progress_received": self._progress_received, "guid": task["guid"]})
             results = converter.ConvertFile(processor_args)
-        except Exception as e:
+        except Exception:
             # It would be better to catch only specific errors here, but we will log them.  Any
             # unhandled errors that occur would shut down the worker thread until reboot.
             # Since exceptions are always logged, so this is reasonably safe.
@@ -285,8 +276,8 @@ class PreProcessorWorker(threading.Thread):
             results = {
                 "is_cancelled": False,
                 "success": False,
-                "message": "An unexpected exception occurred while preprocessing the gcode file at {0}.  Please see "
-                           "plugin_arc_welder.log for more details.".format(task["processor_args"]["source_path"])
+                "message": "An unexpected exception occurred while preprocessing the gcode file at {}.  Please see "
+                "plugin_arc_welder.log for more details.".format(task["processor_args"]["source_path"]),
             }
         # the progress payload will all be in bytes (str for python 2) format.
         # Make sure everything is in unicode (str for python3) because mixed encoding
@@ -304,13 +295,15 @@ class PreProcessorWorker(threading.Thread):
                     self._task_deque.appendleft(task)
                 logger.info(
                     "Preprocessing of %s has been cancelled automatically because printing has started.  Re-adding "
-                    "task to the queue. "
-                    , task["processor_args"]["source_path"])
+                    "task to the queue. ",
+                    task["processor_args"]["source_path"],
+                )
                 self._cancel_callback(task, True)
             elif task.get("is_cancelled_all", False):
                 logger.info(
-                    "Preprocessing of %s has been cancelled via the Cancel All button."
-                    , task["processor_args"]["source_path"])
+                    "Preprocessing of %s has been cancelled via the Cancel All button.",
+                    task["processor_args"]["source_path"],
+                )
                 self._cancel_callback(None, False)
             else:
                 self._cancel_callback(task, False)
@@ -319,9 +312,7 @@ class PreProcessorWorker(threading.Thread):
             with self.r_lock:
                 # Clear out info about the current job
                 self._current_task = None
-            self._success_callback(
-                task, results
-            )
+            self._success_callback(task, results)
         else:
             self._failed_callback(task, results["message"])
 
@@ -356,7 +347,10 @@ class PreProcessorWorker(threading.Thread):
                     if not removed_task.get("is_cancelled", False):
                         self._cancel_callback(removed_task, False)
                 else:
-                    logger.info("Unable to cancel  job with guid %s.  It may be completed or it may have already been cancelled.", job_guid)
+                    logger.info(
+                        "Unable to cancel  job with guid %s.  It may be completed or it may have already been cancelled.",
+                        job_guid,
+                    )
 
     def _progress_received(self, progress):
         is_cancelled = False
@@ -368,23 +362,19 @@ class PreProcessorWorker(threading.Thread):
                 # the progress payload will all be in bytes (str for python 2) format.
                 # Make sure everything is in unicode (str for python3) because mixed encoding
                 # messes with things.
-                #encoded_progresss = utilities.dict_encode(progress)
-                #logger.verbose("Progress Received: %s", encoded_progresss)
+                # encoded_progresss = utilities.dict_encode(progress)
+                # logger.verbose("Progress Received: %s", encoded_progresss)
 
                 current_task = self._get_task(progress["guid"])
                 is_cancelled = current_task.get("is_cancelled", False)
-                #self._progress_callback(encoded_progresss, current_task)
+                # self._progress_callback(encoded_progresss, current_task)
             self._progress_callback(progress, current_task)
             if current_task.get("cancelled_on_print_start", False) or is_cancelled:
                 return False
-        except Exception as e:
+        except Exception:
             logger.exception("An error occurred receiving progress from the py_arc_welder.")
             return False
         finally:
             # allow other threads to process
             time.sleep(0.1)
         return not is_cancelled
-
-
-
-

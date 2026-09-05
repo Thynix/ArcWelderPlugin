@@ -1249,7 +1249,7 @@ $(function () {
         self.onBeforeBinding = function () {
             // Make plugin setting access a little more terse
             //self.plugin_settings = self.settings.settings.plugins.arc_welder;
-            // Update - We want to make a copy here so that only saved changes propogate to the tab
+            // Update - We want to make a copy here so that only saved changes propagate to the tab
             self.plugin_settings = ko.mapping.fromJS(ko.mapping.toJS(self.settings.settings.plugins.arc_welder));
 
             self.octoprint_settings = self.settings.settings;
@@ -1498,7 +1498,7 @@ $(function () {
                 case "preprocessing-success":
                     if (self.plugin_settings.notification_settings.show_completed_notification()) {
                         //  Load all stats for the newly processed file
-                        var message = "Sucessfully welded file:  " + data.task.octoprint_args.target_name;
+                        var message = "Successfully welded file:  " + data.task.octoprint_args.target_name;
                         var options = {
                             title: "Arc Welder - Processing Success",
                             text: message,
@@ -1531,7 +1531,7 @@ $(function () {
                     self.firmware_info.checking_firmware(false);
                     break;
                 default:
-                    loger.error("Arc Welder receied an unknown event: " + data.message_type);
+                    loger.error("Arc Welder received an unknown event: " + data.message_type);
             }
         };
 
@@ -1925,4 +1925,3 @@ $(function () {
         [ArcWelder.tabDivSelector]
     ]);
 });
-

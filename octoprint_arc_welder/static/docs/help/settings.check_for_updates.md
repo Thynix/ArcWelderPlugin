@@ -23,4 +23,3 @@ If you have had any failed prints using Arc Welder, but your firmware version is
 * The welded gcode file you printed.
 
 I will add new firmware information as soon as possible.
-

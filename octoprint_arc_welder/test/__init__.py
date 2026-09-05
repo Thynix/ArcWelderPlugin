@@ -1,4 +1,3 @@
-# coding=utf-8
 # #################################################################################
 # Arc Welder: Anti-Stutter
 #
@@ -26,6 +25,7 @@
 ##################################################################################
 
 import unittest
+
 from octoprint_arc_welder.test.test_firmware_checker import TestFirmwareChecker
 
 
@@ -46,5 +46,5 @@ def test_all():
     runner.run(big_suite)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_all()

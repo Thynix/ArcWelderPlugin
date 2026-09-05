@@ -11,4 +11,3 @@ The available options are:
 * **Disabled** - *Arc Welder* will not automatically test your firmware, and the firmware information will be hidden on the *Arc Welder* tab.
 
 If your firmware is not known, please send me your printer's response to ```M115```, and the response to a naked ```G2``` command, as well as any other information about how your printer handles arc commands, and I will add it to the list!
-

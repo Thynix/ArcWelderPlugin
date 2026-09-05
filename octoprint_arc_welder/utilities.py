@@ -1,4 +1,3 @@
-# coding=utf-8
 # #################################################################################
 # Arc Welder: Anti-Stutter
 #
@@ -24,13 +23,15 @@
 # You can contact the author either through the git-hub repository, or at the
 # following email address: FormerLurker@pm.me
 ##################################################################################
-import os
 import ntpath
-from datetime import datetime
+import os
 import time
+from datetime import datetime
+
 from packaging.version import InvalidVersion
 from packaging.version import parse as _parse_version
-import octoprint_arc_welder.log as log
+
+from octoprint_arc_welder import log
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
 logger = logging_configurator.get_logger(__name__)
@@ -71,8 +72,9 @@ def dict_encode(d):
         if isinstance(s, dict):
             return dict_encode(s)
         if isinstance(s, bytes):
-            return str(s, errors='ignore', encoding='utf-8')
+            return str(s, errors="ignore", encoding="utf-8")
         return s
+
     return {dict_key_value_encode(k): dict_key_value_encode(v) for k, v in d.items()}
 
 
@@ -91,7 +93,7 @@ def does_file_contain_text(file_path, search_text, lines_to_search=100, convert_
         if convert_case:
             for i in range(len(search_text)):
                 search_text[i] = search_text[i].upper()
-        with open(file_path, "r") as file_to_search:
+        with open(file_path) as file_to_search:
             lines_read = 0
             while lines_read < lines_to_search:
                 lines_read += 1
@@ -101,7 +103,7 @@ def does_file_contain_text(file_path, search_text, lines_to_search=100, convert_
                 for text in search_text:
                     if text in line:
                         return True
-    except (IOError, OSError, ValueError) as e:
+    except (OSError, ValueError):
         logger.exception("Error searching `%s` for '%s'", file_path, search_text)
     return False
 
@@ -115,7 +117,7 @@ def search_gcode_file(path_on_disk, search_functions):
         logger.debug("Searching '%s' for processing info.", path_on_disk)
         with open(path_on_disk, "rb") as f:
             return _search_gcode_file(f, search_functions)
-    except (IOError, OSError) as e:
+    except OSError:
         logger.exception("Could not read the added gcode file at %s.", path_on_disk)
     return None
 
@@ -125,7 +127,6 @@ def _search_gcode_file(gcode_file, search_function_list, lines_to_search=100):
     lines_read = 0
     num_functions = len(search_function_list)
     while lines_read < lines_to_search:
-
         if num_functions == 0:
             # break if we have nothing to search for
             break
@@ -133,10 +134,10 @@ def _search_gcode_file(gcode_file, search_function_list, lines_to_search=100):
         # increment our line counter and read the next line
         lines_read += 1
         line = gcode_file.readline(1000)
-        line = line.decode("UTF-8", 'replace')
+        line = line.decode("UTF-8", "replace")
 
         # find the first index of the comment
-        comment_start_index = str(line).find(";")+1
+        comment_start_index = str(line).find(";") + 1
         if comment_start_index == 0:
             # no comment, continue
             continue
@@ -149,9 +150,7 @@ def _search_gcode_file(gcode_file, search_function_list, lines_to_search=100):
             # perform the search, record the result
             fn_result = None
             if fn_def["type"] == COMMENT_SEARCH_TYPE_SETTINGS:
-                fn_result = parse_settings_comment(
-                    line[comment_start_index:], fn_def["tag"], fn_def["settings"]
-                )
+                fn_result = parse_settings_comment(line[comment_start_index:], fn_def["tag"], fn_def["settings"])
             elif fn_def["type"] == COMMENT_SEARCH_TYPE_CONTAINS:
                 find_functions = []
                 find_value = fn_def["find"]
@@ -173,7 +172,7 @@ def _search_gcode_file(gcode_file, search_function_list, lines_to_search=100):
                     # we should stop and return this now
                     return {fn_def["name"]: fn_result}
                 # add the search function result to the result dict
-                if not fn_def["name"] in result:
+                if fn_def["name"] not in result:
                     result[fn_def["name"]] = fn_result
                 else:
                     result[fn_def["name"]].update(fn_result)
@@ -217,8 +216,8 @@ def search_string(string_to_search, strings_to_find, start_index=0):
             # We ran out of string to search
             return -1
 
-        #Extract the possible match
-        string_part = string_to_search[start_index: start_index+item_len].upper()
+        # Extract the possible match
+        string_part = string_to_search[start_index : start_index + item_len].upper()
         if string_part == item:
             start_index += item_len
         else:
@@ -249,27 +248,26 @@ def parse_settings_comment(line, tag, settings_dict):
     # quick check to see if this is necessary
     if line.upper().find(tag) == -1:
         return
-    search_strings = [
-        tag, ":"
-    ]
+    search_strings = [tag, ":"]
     index = search_string(line, search_strings)
-    if index < 0 or len(line) <= index+1:
+    if index < 0 or len(line) <= index + 1:
         return False
     # We have found the tag.  Extract the parameters
     parameters_string = line[index:].strip()
     import csv
     from io import StringIO
+
     try:
         separated_parameters = csv.reader(
             StringIO(parameters_string),
-            delimiter=str(','),
-            quotechar=str('"'),
-            escapechar =str('\\'),
+            delimiter=",",
+            quotechar='"',
+            escapechar="\\",
             doublequote=True,
             skipinitialspace=True,
-            quoting=csv.QUOTE_MINIMAL
+            quoting=csv.QUOTE_MINIMAL,
         )
-    except (csv.Error, TypeError) as e:
+    except (csv.Error, TypeError):
         logger.exception("Failed to parse arc welder gcode tag")
         return False
     results = {}
@@ -281,7 +279,7 @@ def parse_settings_comment(line, tag, settings_dict):
                 logger.error("Skipping invalid ArcWelder GCode Parameter: %s", parameter)
                 continue
             key = parameter[0:equal_index].strip().upper()
-            value = parameter[equal_index + 1:].strip()
+            value = parameter[equal_index + 1 :].strip()
 
             param_def = settings_dict.get(key, None)
             if param_def is None:
@@ -297,15 +295,15 @@ def parse_settings_comment(line, tag, settings_dict):
                     result_value = int(value)
                 elif param_type == "percent":
                     # see if there is a percent sign, divide by 100
-                    result_value = float(value.replace("%",""))
+                    result_value = float(value.replace("%", ""))
                     if value.find("%") < 0:
                         result_value = result_value * 100
                 elif param_type == "boolean":
                     result_value = value.upper() in ["1", "TRUE", "YES", "Y"]
                 elif param_type == "string":
                     # strip leading quotes if there are any
-                    if len(value) > 2 and value[0] == '"' and value[len(value)-1] == '"':
-                        result_value = value[1:len(value) - 1]
+                    if len(value) > 2 and value[0] == '"' and value[len(value) - 1] == '"':
+                        result_value = value[1 : len(value) - 1]
                     else:
                         result_value = value.strip()
                 if result_value is not None:
@@ -313,7 +311,7 @@ def parse_settings_comment(line, tag, settings_dict):
                     results[settings_key_name] = result_value
                 else:
                     logger.error("Failed to parse %s parameter value of %s", key, value)
-            except ValueError as e:
+            except ValueError:
                 logger.exception("Failed to parse %s parameter value of %s", key, value)
     if len(results) == 0:
         return False
@@ -373,18 +371,12 @@ def is_version_in_versions(current_version_string, version_checks, compare_type=
             compare_value = parse_version(compare_string)
         else:
             # this shouldn't happen, but handle it gracefully in case there are typos
-            logger.error(
-                "Unknown compare type '%s' for the version check '%s'.",
-                compare_type,
-                version_check
-            )
+            logger.error("Unknown compare type '%s' for the version check '%s'.", compare_type, version_check)
 
         if compare_value is None:
             # this shouldn't happen, but typos occur.  Handle them gracefully
             logger.error(
-                "Could not parse the compare value '%s' via the %s compare type.",
-                compare_string,
-                compare_type
+                "Could not parse the compare value '%s' via the %s compare type.", compare_string, compare_type
             )
             continue
 
@@ -417,6 +409,7 @@ def is_version_in_versions(current_version_string, version_checks, compare_type=
 
 UTC_DATE_TIME_FORMAT = "%m-%d-%Y %H:%M:%S"
 LOCAL_DATE_TIME_FORMAT = "%x %X"
+
 
 def utc_to_local(utc_datetime):
     now_timestamp = time.time()
