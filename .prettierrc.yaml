@@ -1,0 +1,3 @@
+# Match the Python side (ruff): 4-space indent, 120-column width.
+tabWidth: 4
+printWidth: 120
