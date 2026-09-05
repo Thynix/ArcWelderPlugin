@@ -159,7 +159,7 @@ $(function () {
                 var message =
                     "Arc Welder detected the removal or addition of PNotify default confirmation buttons, " +
                     "which should not be done in a shared environment.  Some plugins may show strange behavior.  Please " +
-                    "report this error at https://github.com/FormerLurker/ArcWelder/issues.  ArcWelder will now clear " +
+                    "report this error at https://github.com/Thynix/ArcWelderPlugin/issues.  ArcWelder will now clear " +
                     "and re-add the default PNotify buttons.";
                 console.error(message);
 

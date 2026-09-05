@@ -1238,7 +1238,7 @@ class FirmwareFileUpdater:
             # load the available versions
             r = requests.get(
                 (
-                    "https://raw.githubusercontent.com/FormerLurker/ArcWelderPluginFirmwareInfo/main/versions.json"
+                    "https://raw.githubusercontent.com/Thynix/ArcWelderPluginFirmwareInfo/main/versions.json"
                     f"?nonce={uuid.uuid4().hex}"
                 ),
                 timeout=float(10),
@@ -1260,7 +1260,7 @@ class FirmwareFileUpdater:
     @staticmethod
     def _get_url_for_version(version_info):
         # build up keys string
-        return "https://raw.githubusercontent.com/FormerLurker/ArcWelderPluginFirmwareInfo/main/{}/types.json?nonce={}".format(
+        return "https://raw.githubusercontent.com/Thynix/ArcWelderPluginFirmwareInfo/main/{}/types.json?nonce={}".format(
             version_info["version_folder"], uuid.uuid4().hex
         )
 
@@ -1280,7 +1280,7 @@ class FirmwareFileUpdater:
     @staticmethod
     def _get_url_for_document(version_info, doc_name):
         # build up keys string
-        return "https://raw.githubusercontent.com/FormerLurker/ArcWelderPluginFirmwareInfo/main/{}/docs/{}?nonce={}".format(
+        return "https://raw.githubusercontent.com/Thynix/ArcWelderPluginFirmwareInfo/main/{}/docs/{}?nonce={}".format(
             version_info["version_folder"], doc_name, uuid.uuid4().hex
         )
 
