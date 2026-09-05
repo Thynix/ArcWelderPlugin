@@ -25,22 +25,25 @@
 ##################################################################################
 import os
 import re
+import tempfile
 import unittest
 
 from octoprint_arc_welder.firmware_checker import FirmwareChecker
+
+# the octoprint_arc_welder package directory (holds data/, static/, ...)
+PACKAGE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class TestFirmwareChecker(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.base_folder = os.path.dirname(os.getcwd())
-        self.data_directory = os.path.join(os.path.dirname(self.base_folder), "octoprint_arc_welder", "test")
         self.firmware_checker = None
         self.response = None
 
     def setUp(self):
+        self._data_directory = tempfile.TemporaryDirectory()
         self.firmware_checker = FirmwareChecker(
-            "1.1", None, self.base_folder, self.data_directory, None, load_defaults=True
+            "1.1", None, PACKAGE_DIR, self._data_directory.name, None, load_defaults=True
         )
 
         # Add regex firmware tests
@@ -88,7 +91,8 @@ class TestFirmwareChecker(unittest.TestCase):
         self.firmware_checker._get_m115_response = _get_m115_response
 
     def tearDown(self):
-        del self.firmware_checker
+        self.firmware_checker = None
+        self._data_directory.cleanup()
 
     def test_prusa_firmware_version_response(self):
         # Prusa Firmware <1.0.0

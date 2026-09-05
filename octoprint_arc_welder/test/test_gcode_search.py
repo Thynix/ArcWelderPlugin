@@ -24,9 +24,14 @@
 # following email address: FormerLurker@pm.me
 ##################################################################################
 import unittest
-from io import StringIO
+from io import BytesIO
 
 from octoprint_arc_welder import ArcWelderPlugin, utilities
+
+
+def _gcode_file(text):
+    # _search_gcode_file expects a binary file handle, like the one search_gcode_file opens
+    return BytesIO(text.encode("utf-8"))
 
 
 class TestGcodeSearch(unittest.TestCase):
@@ -49,7 +54,7 @@ class TestGcodeSearch(unittest.TestCase):
             ; arc_welder_g90_influences_extruder = False
         """
         self.assertDictEqual(
-            utilities._search_gcode_file(StringIO(test_string), self.search_functions), {"is_welded": True}
+            utilities._search_gcode_file(_gcode_file(test_string), self.search_functions), {"is_welded": True}
         )
 
         # test cura
@@ -60,7 +65,7 @@ class TestGcodeSearch(unittest.TestCase):
             ; arc_welder_g90_influences_extruder = False
         """
         self.assertDictEqual(
-            utilities._search_gcode_file(StringIO(test_string), self.search_functions),
+            utilities._search_gcode_file(_gcode_file(test_string), self.search_functions),
             {"slicer_upload_type": "Cura-OctoPrintPlugin"},
         )
 
@@ -73,7 +78,7 @@ class TestGcodeSearch(unittest.TestCase):
             ; arc_welder_g90_influences_extruder = False
         """
         self.assertDictEqual(
-            utilities._search_gcode_file(StringIO(test_string), self.search_functions), {"is_welded": True}
+            utilities._search_gcode_file(_gcode_file(test_string), self.search_functions), {"is_welded": True}
         )
 
         # test settings
@@ -85,28 +90,9 @@ class TestGcodeSearch(unittest.TestCase):
             ; arc_welder_g90_influences_extruder = False
         """
         self.assertDictEqual(
-            utilities._search_gcode_file(StringIO(test_string), self.search_functions),
-            {"settings": {"POSTFIX": ".aw", "PREFIX": "arc,welded", "RESOLUTION-MM": 0.2}},
+            utilities._search_gcode_file(_gcode_file(test_string), self.search_functions),
+            {"settings": {"postfix": ".aw", "prefix": "arc,welded", "resolution_mm": 0.2}},
         )
-
-        # test speed
-
-    #    test_string = """
-    #                ; Comment
-    #                ; Copyright(C) 2020 - Brad Hochgesang
-    #                ;  AcWelder   :POSTFIX= .aw, Prefix = \\\"arc\\,welded\\\", resolution-mm = 0.2
-    # afjdklsafjdskl ;
-    #                ; arc_welder_g90_influences_extruder = False
-    #            """
-    #    test_file = StringIO(test_string)
-    #    num_tries = 100000
-    #    start_time = time.perf_counter()
-    #    while num_tries > 0:
-    #        num_tries -= 1
-    #        utilities._search_gcode_file(test_file, self.search_functions)
-    #        test_file.seek(0)
-    #    end_time = time.perf_counter()
-    #    print ("Fininshed in {0:.1f} seconds".format(end_time - start_time))
 
     def test_parsing_ignore(self):
         test_string = ""
@@ -127,57 +113,58 @@ class TestGcodeSearch(unittest.TestCase):
     def test_boolean_parameter(self):
         # Test common non results
         test_string = " ArcWelder   :weld= true"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": True})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": True})
         test_string = "ArcWelder:weld=true"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": True})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": True})
         test_string = " ArcWelder:  weld=true"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": True})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": True})
         test_string = " ArcWelder:  weld = True"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": True})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": True})
         test_string = " ArcWelder:  weld = 1"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": True})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": True})
         test_string = " ArcWelder:  weld=fAlse"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": False})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": False})
         test_string = " ArcWelder:  weld = 0"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": False})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": False})
         test_string = " ArcWelder:  weld = N"
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"WELD": False})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"weld": False})
 
     def test_float_parameter(self):
         # Test common non results
         test_string = " ArcWelder   :resolution-MM= 1.0"
         self.assertDictEqual(
-            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"RESOLUTION-MM": 1.0}
+            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"resolution_mm": 1.0}
         )
         test_string = "ArcWelder:resolution-mm=.2"
         self.assertDictEqual(
-            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"RESOLUTION-MM": 0.2}
+            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"resolution_mm": 0.2}
         )
         test_string = " ArcWelder:  RESOLUTION-MM = 0"
         self.assertDictEqual(
-            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"RESOLUTION-MM": 0}
+            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"resolution_mm": 0}
         )
 
     def test_percent_parameter(self):
-        # Test common non results
+        # An explicit "%" is taken as-is...
         test_string = " ArcWelder   :PATH-TOLERANCE-PERCENT= 5%"
         self.assertDictEqual(
-            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"PATH-TOLERANCE-PERCENT": 5.0}
+            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"path_tolerance_percent": 5.0}
         )
-        test_string = "ArcWelder:PATH-TOLERANCE-PERCENT= 5"
+        # ...a bare value is treated as a fraction and scaled to a percentage.
+        test_string = "ArcWelder:PATH-TOLERANCE-PERCENT= 0.05"
         self.assertDictEqual(
-            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"PATH-TOLERANCE-PERCENT": 5.0}
+            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"path_tolerance_percent": 5.0}
         )
 
     def test_string_parameter(self):
         # Test common non results
         test_string = " ArcWelder   :POSTFIX= .aw "
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"POSTFIX": ".aw"})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"postfix": ".aw"})
         test_string = 'ArcWelder:POSTFIX=".aw"'
-        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"POSTFIX": ".aw"})
+        self.assertDictEqual(utilities.parse_settings_comment(test_string, self.tag, self.settings), {"postfix": ".aw"})
         test_string = 'ArcWelder:POSTFIX=" . a w"'
         self.assertDictEqual(
-            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"POSTFIX": " . a w"}
+            utilities.parse_settings_comment(test_string, self.tag, self.settings), {"postfix": " . a w"}
         )
 
     def test_multiple_parameters(self):
@@ -185,23 +172,23 @@ class TestGcodeSearch(unittest.TestCase):
         test_string = ' ArcWelder   :POSTFIX= .aw, Prefix = "arc welded", resolution-mm= 0.2'
         self.assertDictEqual(
             utilities.parse_settings_comment(test_string, self.tag, self.settings),
-            {"POSTFIX": ".aw", "PREFIX": "arc welded", "RESOLUTION-MM": 0.2},
+            {"postfix": ".aw", "prefix": "arc welded", "resolution_mm": 0.2},
         )
         test_string = " ArcWelder   :POSTFIX= .aw, Prefix = arc welded, resolution-mm= 0.2"
         self.assertDictEqual(
             utilities.parse_settings_comment(test_string, self.tag, self.settings),
-            {"POSTFIX": ".aw", "PREFIX": "arc welded", "RESOLUTION-MM": 0.2},
+            {"postfix": ".aw", "prefix": "arc welded", "resolution_mm": 0.2},
         )
         test_string = ' ArcWelder   :POSTFIX= .aw, Prefix = \\"arc\\,welded\\", resolution-mm = 0.2'
         self.assertDictEqual(
             utilities.parse_settings_comment(test_string, self.tag, self.settings),
-            {"POSTFIX": ".aw", "PREFIX": "arc,welded", "RESOLUTION-MM": 0.2},
+            {"postfix": ".aw", "prefix": "arc,welded", "resolution_mm": 0.2},
         )
 
         test_string = " ArcWelder   :POSTFIX= .aw, Prefix = arc\\,welded, resolution-mm = 0.2"
         self.assertDictEqual(
             utilities.parse_settings_comment(test_string, self.tag, self.settings),
-            {"POSTFIX": ".aw", "PREFIX": "arc,welded", "RESOLUTION-MM": 0.2},
+            {"postfix": ".aw", "prefix": "arc,welded", "resolution_mm": 0.2},
         )
 
     def test_unicode(self):
@@ -212,5 +199,5 @@ class TestGcodeSearch(unittest.TestCase):
                     ; arc_welder_g90_influences_extruder = False
                 """
         self.assertDictEqual(
-            utilities._search_gcode_file(StringIO(test_string), self.search_functions), {"is_welded": True}
+            utilities._search_gcode_file(_gcode_file(test_string), self.search_functions), {"is_welded": True}
         )
