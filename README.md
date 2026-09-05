@@ -242,6 +242,29 @@ First, if you are trying to install to a linux machine (this will not be necessa
 
 Try connecting to a terminal and running the following command:  ```sudo apt-get install g++```
 
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and
+builds. A C++ compiler is required to build the bundled `PyArcWelder` extension
+(`sudo apt-get install -y python3-dev g++` on Debian/Ubuntu; the "Desktop
+development with C++" workload from the Visual Studio Build Tools on Windows).
+
+```
+uv sync                 # create .venv with runtime + dev dependencies
+uv run pytest           # run the test suite
+uv build                # build sdist + wheel into dist/
+uv run go-task --list   # translation / build helper tasks (see Taskfile.yml)
+```
+
+To install a working copy into an existing OctoPrint environment:
+
+```
+uv pip install --python /path/to/octoprint/venv/bin/python .
+```
+
+The pinned dependency set lives in `uv.lock`; regenerate it with `uv lock` after
+changing dependencies.
+
 ## Reporting Issues
 
 If you have a problem using *Arc Welder*, please first check the open and closed issues.  If you find an existing issue that is close to your own, please read through it and see if there are any suggested fixes.  If your issue is unique, consider creating a new issue.  However, please don't use the Github issues as general technical support.  They are for reporting potential bugs in the software.  When in doubt, go ahead and [create an issue here](https://github.com/formerlurker/arcwelderplugin/issues).  I do want to help no matter what your problem is, but I spend so much time time dealing with issues and I'd rather be improving the software if at all possible.  Bug reports improve software, tech support does not.  Thanks in advance!

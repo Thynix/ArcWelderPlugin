@@ -1,10 +1,11 @@
 
 # Taskfile to be used with task: https://taskfile.dev
 #
-# A copy of task gets automatically installed as a "develop" dependency this plugin:
+# task itself is installed as a "dev" dependency of this plugin, so after a
+# `uv sync` it is available as `go-task` (or `task`) inside the project venv:
 #
-#   pip install .[develop]
-#   go-task --list-all
+#   uv sync
+#   uv run go-task --list-all
 #
 
 version: "3"
@@ -16,26 +17,26 @@ env:
 
 tasks:
     install:
-        desc: Installs the plugin into the current venv
+        desc: Sync the project venv (runtime + dev dependencies)
         cmds:
-          - "python -m pip install -e .[develop]"
+          - uv sync
 
     ### Build related
 
     build:
         desc: Builds sdist & wheel
         cmds:
-          - python -m build --sdist --wheel
+          - uv build
 
     build-sdist:
         desc: Builds sdist
         cmds:
-          - python -m build --sdist
+          - uv build --sdist
 
     build-wheel:
         desc: Builds wheel
         cmds:
-          - python -m build --wheel
+          - uv build --wheel
 
     ### Translation related
 
@@ -43,19 +44,19 @@ tasks:
         desc: Create a new translation for a locale
         cmds:
           - task: babel-extract
-          - pybabel init --input-file=translations/messages.pot --output-dir=translations --locale="{{ .CLI_ARGS }}"
+          - uv run pybabel init --input-file=translations/messages.pot --output-dir=translations --locale="{{ .CLI_ARGS }}"
 
     babel-extract:
         desc: Update pot file from source
         cmds:
-          - pybabel extract --mapping-file=babel.cfg --output-file=translations/messages.pot --msgid-bugs-address=i18n@octoprint.org --copyright-holder="The OctoPrint Project" .
+          - uv run pybabel extract --mapping-file=babel.cfg --output-file=translations/messages.pot --msgid-bugs-address=i18n@octoprint.org --copyright-holder="The OctoPrint Project" .
 
     babel-update:
         desc: Update translation files from pot file
         cmds:
           - for:
                 var: LOCALES
-            cmd: pybabel update --input-file=translations/messages.pot --output-dir=translations --locale={{ .ITEM }}
+            cmd: uv run pybabel update --input-file=translations/messages.pot --output-dir=translations --locale={{ .ITEM }}
 
     babel-refresh:
         desc: Update translation files from source
@@ -66,7 +67,7 @@ tasks:
     babel-compile:
         desc: Compile translation files
         cmds:
-          - pybabel compile --directory=translations
+          - uv run pybabel compile --directory=translations
 
     babel-bundle:
         desc: Bundle translations

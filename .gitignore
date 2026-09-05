@@ -7,6 +7,7 @@
 build
 dist
 *.egg*
+.venv/
 .DS_Store
 .vs/
 *.zip

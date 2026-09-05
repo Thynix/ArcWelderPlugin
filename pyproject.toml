@@ -13,7 +13,7 @@ authors = [
     { name = "Brad Hochgesang", email = "FormerLurker@pm.me" },
     { name = "Steve Dougherty", email = "steve@asksteved.com" },
 ]
-requires-python = ">=3.7,<4"
+requires-python = ">=3.9,<4"
 dependencies = [
     "OctoPrint>=1.8.0",
 ]
@@ -27,14 +27,26 @@ arc_welder = "octoprint_arc_welder"
 [project.urls]
 Homepage = "https://github.com/Thynix/ArcWelderPlugin"
 
-[project.optional-dependencies]
-develop = [
-    "go-task-bin",
-]
-
 [project.readme]
 file = "README.md"
 content-type = "text/markdown"
+
+[dependency-groups]
+dev = [
+    "build>=1.2",
+    "go-task-bin>=3.40",
+    "pytest>=8",
+]
+
+[tool.uv]
+# Rebuild the PyArcWelder extension when its C/C++ sources or the build
+# configuration change, not just when the version bumps.
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "setup.py" },
+    { file = "octoprint_arc_welder/data/lib/c/**/*.cpp" },
+    { file = "octoprint_arc_welder/data/lib/c/**/*.h" },
+]
 
 [tool.setuptools]
 include-package-data = true
