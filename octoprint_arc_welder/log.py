@@ -25,7 +25,7 @@
 # following email address: FormerLurker@pm.me
 ##################################################################################
 import logging
-import datetime as datetime
+import datetime
 import os
 from octoprint.logging.handlers import (
     AsyncLogHandlerMixin,
@@ -109,7 +109,6 @@ class LoggingConfigurator(metaclass=Singleton):
         self._log_file_prefix = log_file_prefix  # "octoprint_arc_welder."
         self._root_logger = self._get_root_logger(self._root_logger_name)
 
-        self._level = logging.DEBUG
         self._file_handler = None
         self._console_handler = None
         self.child_loggers = set()

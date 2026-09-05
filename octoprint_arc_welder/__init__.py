@@ -46,8 +46,6 @@ import urllib.parse as urllibparse
 
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
-root_logger = logging_configurator.get_root_logger()
-# so that we can
 logger = logging_configurator.get_logger("__init__")
 
 # must import AFTER the logger is imported,
@@ -1007,9 +1005,9 @@ class ArcWelderPlugin(
         if "thumbnail_src" in additional_metadata:
             del additional_metadata["thumbnail_src"]
 
-        if has_ultimaker_format_package_thumbnail and not "thumbnail_src" in additional_metadata:
+        if has_ultimaker_format_package_thumbnail:
             additional_metadata["thumbnail_src"] = "UltimakerFormatPackage"
-        elif has_prusa_slicer_thumbnail and not "thumbnail_src" in additional_metadata:
+        elif has_prusa_slicer_thumbnail:
             additional_metadata["thumbnail_src"] = "prusaslicerthumbnails"
 
         # add the additional metadata

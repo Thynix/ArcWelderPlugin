@@ -46,8 +46,6 @@ except ImportError:
     RegexPattern = type(re.compile('hello, world'))
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
-root_logger = logging_configurator.get_root_logger()
-# so that we can
 logger = logging_configurator.get_logger(__name__)
 
 

@@ -32,8 +32,6 @@ import time
 import octoprint_arc_welder.log as log
 
 logging_configurator = log.LoggingConfigurator("arc_welder", "arc_welder.", "octoprint_arc_welder.")
-root_logger = logging_configurator.get_root_logger()
-# so that we can
 logger = logging_configurator.get_logger(__name__)
 
 
@@ -49,12 +47,8 @@ def get_filename_from_path(filepath):
 def get_extension_from_filename(filename):
     head, tail = ntpath.split(filename)
     file_name = tail or ntpath.basename(head)
-    split_filename = os.path.splitext(file_name)
-    if len(split_filename) > 1:
-        extension = split_filename[1]
-        if len(split_filename) > 1:
-            return extension[1:]
-    return ""
+    return os.path.splitext(file_name)[1][1:]
+
 
 def dict_encode(d):
     # helpers for dealing with bytes (string) values delivered by the converter
