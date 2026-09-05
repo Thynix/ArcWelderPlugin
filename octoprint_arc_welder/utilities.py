@@ -25,8 +25,7 @@
 ##################################################################################
 import ntpath
 import os
-import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 from packaging.version import InvalidVersion
 from packaging.version import parse as _parse_version
@@ -411,9 +410,8 @@ LOCAL_DATE_TIME_FORMAT = "%x %X"
 
 
 def utc_to_local(utc_datetime):
-    now_timestamp = time.time()
-    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
-    return utc_datetime + offset
+    # utc_datetime is naive but represents UTC; convert to naive local time
+    return utc_datetime.replace(tzinfo=timezone.utc).astimezone().replace(tzinfo=None)
 
 
 def get_utc_time_string(utc_date_time):

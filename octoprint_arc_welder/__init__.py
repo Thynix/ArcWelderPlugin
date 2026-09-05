@@ -445,9 +445,9 @@ class ArcWelderPlugin(
 
             # add the file and metadata to the processor queue
             success = self.add_file_to_preprocessor_queue(name, path, origin, True)
-        except Exception as e:
+        except Exception:
             logger.exception("Could not process file manually.")
-            raise e
+            raise
         return jsonify({"success": success})
 
     @octoprint.plugin.BlueprintPlugin.route("/restoreDefaultSettings", methods=["POST"])
@@ -531,7 +531,7 @@ class ArcWelderPlugin(
         data = {"message_type": "preprocessing-tasks-changed", "preprocessing_tasks": preprocessing_tasks}
         self._plugin_manager.send_plugin_message(self._identifier, data)
 
-    def send_notification_toast(self, toast_type, title, message, auto_hide, key=None, close_keys=[]):
+    def send_notification_toast(self, toast_type, title, message, auto_hide, key=None, close_keys=None):
         data = {
             "message_type": "toast",
             "toast_type": toast_type,
@@ -539,7 +539,7 @@ class ArcWelderPlugin(
             "message": message,
             "auto_hide": auto_hide,
             "key": key,
-            "close_keys": close_keys,
+            "close_keys": close_keys or [],
         }
         self._plugin_manager.send_plugin_message(self._identifier, data)
 
@@ -1004,7 +1004,7 @@ class ArcWelderPlugin(
             try:
                 self._file_manager.remove_file(FileDestinations.LOCAL, path)
                 break
-            except StorageError as e:
+            except StorageError:
                 logger.warning(
                     f"Unable to overwrite the target file, it is currently in use.  Trying again in {seconds_to_wait} seconds"
                 )
@@ -1013,7 +1013,7 @@ class ArcWelderPlugin(
                     time.sleep(seconds_to_wait)
                 else:
                     logger.error("Reached max retries for deleting the source file.  Aborting.")
-                    raise e
+                    raise
 
     def _get_collision_free_filepath(self, path, display_name):
         directory, filename = self._file_manager.split_path(FileDestinations.LOCAL, path)
@@ -1229,7 +1229,7 @@ class ArcWelderPlugin(
                     and print_after_processing
                     and not self._get_is_printing()
                 ):
-                    self._printer.start_print(tags=set("arc_welder"))
+                    self._printer.start_print(tags={"plugin:arc_welder"})
             except (octoprint.printer.InvalidFileType, octoprint.printer.InvalidFileLocation):
                 # we don't care too much if OctoPrint can't select the file.  There's nothing
                 # we can do about it anyway

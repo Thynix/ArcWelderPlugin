@@ -30,7 +30,7 @@ import re
 import shutil
 import threading
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 
@@ -95,10 +95,10 @@ class FirmwareChecker:
 
             # Load the most recent firmware info if it exists.
             self._load_current_firmware_info()
-        except Exception as e:
+        except Exception:
             logger.exception("Unable to start the firmware checker.")
             # throw the exception
-            raise e
+            raise
 
     def _load_firmware_types(self, load_defaults):
         with self._shared_data_rlock:
@@ -217,7 +217,7 @@ class FirmwareChecker:
             self._load_firmware_types(False)
 
             firmware_types_update_info = {
-                "last_checked_date": utilities.get_utc_time_string(datetime.utcnow()),
+                "last_checked_date": utilities.get_utc_time_string(datetime.now(timezone.utc)),
                 "last_check_success": result["success"],
             }
             self._firmware_types.update(firmware_types_update_info)
@@ -264,7 +264,7 @@ class FirmwareChecker:
             "g90_g91_influences_extruder": None,
             "arc_settings": None,
             "version_info": None,
-            "last_check_datetime": utilities.get_utc_time_string(datetime.utcnow()),
+            "last_check_datetime": utilities.get_utc_time_string(datetime.now(timezone.utc)),
         }
 
         if not response_lines or len(response_lines) < 1:
@@ -1017,10 +1017,10 @@ class FirmwareChecker:
                 # return the request.  It may be None
                 return self._printer_request
 
-            except Exception as e:
+            except Exception:
                 # log and re-raise the exception
                 logger.exception("A problem occurred sending a request to the printer.")
-                raise e
+                raise
             finally:
                 # clear the current request
                 with self._request_lock:
