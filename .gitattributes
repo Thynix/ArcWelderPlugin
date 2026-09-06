@@ -11,5 +11,3 @@ README.md export-ignore
 .editorconfig export-ignore
 # all files within the Extras folder
 Extras export-ignore
-
-octoprint_arc_welder/_version.py export-subst
