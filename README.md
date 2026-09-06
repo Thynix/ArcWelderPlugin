@@ -253,7 +253,6 @@ development with C++" workload from the Visual Studio Build Tools on Windows).
 uv sync                 # create .venv with runtime + dev dependencies
 uv run pytest           # run the test suite
 uv build                # build sdist + wheel into dist/
-uv run go-task --list   # translation / build helper tasks (see Taskfile.yml)
 ```
 
 To install a working copy into an existing OctoPrint environment:
