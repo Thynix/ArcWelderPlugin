@@ -1,4 +1,3 @@
-# coding=utf-8
 # #################################################################################
 # Arc Welder: Anti-Stutter
 #
@@ -7,6 +6,7 @@
 # the number of gcodes per second sent to a 3D printer that supports arc commands (G2 G3)
 #
 # Copyright (C) 2020  Brad Hochgesang
+# Copyright (C) 2026  Steve Dougherty
 # #################################################################################
 # This program is free software:
 # you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@
 ##################################################################################
 
 import unittest
+
 from octoprint_arc_welder.test.test_firmware_checker import TestFirmwareChecker
 
 
@@ -46,5 +47,5 @@ def test_all():
     runner.run(big_suite)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_all()

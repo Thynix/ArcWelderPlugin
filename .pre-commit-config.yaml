@@ -1,0 +1,48 @@
+# Excluded from formatting and spell-checking:
+#   - LICENSE                                          (verbatim AGPL text)
+#   - octoprint_arc_welder/data/lib/c/**               (upstream ArcWelderLib C++ sources)
+#   - octoprint_arc_welder/static/js/showdown.min.js   (minified library)
+exclude: |
+  (?x)^(
+    LICENSE|
+    octoprint_arc_welder/data/lib/c/.*|
+    octoprint_arc_welder/static/js/showdown\.min\.js
+  )$
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.2
+    hooks:
+      - id: pyupgrade
+        args: ["--py310-plus"]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.6
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.2
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
+  - repo: https://github.com/djlint/djLint
+    rev: v1.45.2
+    hooks:
+      - id: djlint-jinja
+        files: \.jinja2$
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.6.2
+    hooks:
+      - id: prettier
+        types_or: [javascript, css]

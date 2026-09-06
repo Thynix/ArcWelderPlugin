@@ -1,11 +1,13 @@
 *.pyc
 *.pyd
+*.so
 *.swp
 .idea
 *.iml
 build
 dist
 *.egg*
+.venv/
 .DS_Store
 .vs/
 *.zip

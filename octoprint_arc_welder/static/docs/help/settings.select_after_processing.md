@@ -5,5 +5,3 @@
  * *Disabled* - The target file will never be selected.
 
 Note: Arcwelder can only select the target file if OctoPrint is not printing.
-
-

@@ -6,6 +6,7 @@
 # the number of gcodes per second sent to a 3D printer that supports arc commands (G2 G3)
 #
 # Copyright (C) 2020  Brad Hochgesang
+# Copyright (C) 2026  Steve Dougherty
 # #################################################################################
 # This program is free software:
 # you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by
@@ -24,17 +25,9 @@
 # following email address: FormerLurker@pm.me
 ##################################################################################-->
 <script type="text/html" id="arc_welder_settings_about">
-    <h4>Support My Efforts</h4>
+    <h4>Authorship</h4>
     <p>
-        If you like this plugin or any of the others I've designed or contributed to (Octolapse), please consider supporting my efforts by sponsoring me on <a href="https://www.patreon.com/bePatron?u=9588101" target="_blank" title="Become a patron"><i class="fa fa-patreon"></i>Patreon</a>, <a href="https://github.com/FormerLurker" target="_blank" title="FormerLurker&#146;s Github Page"><i class="fa fa-github">&nbsp;Github</i></a>, or buy me a beer with <a href="https://paypal.me/formerlurker" target="_blank" title="Donate via PayPal"><i class="fa fa-paypal"></i>&nbsp;PayPal</a>.  I'd also appreciate if you subscribed to my <a href="https://youtube.com/c/FormerLurker" target="_blank" title="FormerLurker&#146;s YouTube Channel"><i class="fa fa-youtube"></i>&nbsp;YouTube</a> channel.  I would love to spend even more time working on open source projects, and you can help make that happen!
-    </p>
-    <hr/>
-    <h4>Patrons and Supporters</h4>
-    <p>
-        Thank you patrons and supporters, may you all live forever!
-    </p>
-    <p>
-        <a href="https://layerfused.com/" target="_blank"><strong>LayerFused LLC</strong></a><br/>
+        Created by <a href="https://github.com/FormerLurker" target="_blank">FormerLurker</a>.
     </p>
     <hr/>
     <h4>The Stuttering Problem</h4>
@@ -73,7 +66,7 @@
         Not all printers support arc commands, and many people have disabled arc commands to save a small amount of memory.  If your firmware does not support these commands, then <i>Arc Welder</i> will not help you.  It's sometimes possible to change your printer's firmware to support these commands, but many flavors of firmware don't support arc commands for all printers, especially delta printers.
     </p>
     <p>
-        Some firmware is compiled with options that will prevent the arc commands from working as expected in all instances.  In particular, Marlin has an option called <i>MM_PER_ARC_SEGMENT</i> that defaults to 1mm, which is a very conservative default value that few people have changed (G2 and G3 is not commonly used, afterall).  This means any arc segments shorter than 1mm will be converted into straight lines.  A 1mm curve that is printed as a straight line is very obvious.  I recommend reducing this value to 0.1mm, though I will have a better recommendation once I'm able to play with it a bit more.
+        Some firmware is compiled with options that will prevent the arc commands from working as expected in all instances.  In particular, Marlin has an option called <i>MM_PER_ARC_SEGMENT</i> that defaults to 1mm, which is a very conservative default value that few people have changed (G2 and G3 is not commonly used, after all).  This means any arc segments shorter than 1mm will be converted into straight lines.  A 1mm curve that is printed as a straight line is very obvious.  I recommend reducing this value to 0.1mm, though I will have a better recommendation once I'm able to play with it a bit more.
     </p>
     <p>
         Auto bed leveling isn't always supported fully when using G2/G3.  Prusa firmware specifically states (though I'm not sure if this is still true) that Auto-Bed Leveling is only implemented at the endpoints of an arc, which could cause problems if there are very long arcs in your print.  Hopefully this will be solved at some point.
@@ -82,11 +75,13 @@
     <h4>Final Thoughts</h4>
     <p>
         If you have experienced stuttering, I want to hear how the <i>Arc Welder</i> plugin has worked for you!  Please send me the following:
-        <ul>
-            <li>A picture of your part printed directly from your printer's SD card.</li>
-            <li>A picture of your part printed locally from OctoPrint.</li>
-            <li>A picture of your part printed locally from Octoprint after compressing it with the <i>Arc Welder</i> plugin.</li>
-        </ul>
+    </p>
+    <ul>
+        <li>A picture of your part printed directly from your printer's SD card.</li>
+        <li>A picture of your part printed locally from OctoPrint.</li>
+        <li>A picture of your part printed locally from Octoprint after compressing it with the <i>Arc Welder</i> plugin.</li>
+    </ul>
+    <p>
         I would also love to hear any feedback you have, since I'm always trying to improve my plugins.
     </p>
     <h4 data-bind="text: plugin_settings().arc_welder_lib_version_info.title"></h4>
@@ -124,7 +119,7 @@
         Fpconv float to string conversion - <a href="https://github.com/miloyip/dtoa-benchmark/blob/master/license.txt" target="_blank">Copyright (C) 2014 Milo Yip</a><br/>
         The original fpconv algorithm - <a href="https://github.com/miloyip/dtoa-benchmark/blob/master/src/fpconv/license" target="_blank">Copyright(c) 2013 Andreas Samoljuk</a><br/>
     </p>
-    <p>In addition, the console version includes the powerful command line argument processing tool <a href="http://tclap.sourceforge.net/" target="_blank">TCLAP</a>.  Even though this is not used in the ArcWelder Plugin plugin, I want to give this library some much deserved love!</p>
+    <p>In addition, the console version includes the powerful command line argument processing tool <a href="https://tclap.sourceforge.net/" target="_blank">TCLAP</a>.  Even though this is not used in the ArcWelder Plugin plugin, I want to give this library some much deserved love!</p>
 
 
 </script>

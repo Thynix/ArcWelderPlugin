@@ -2,4 +2,4 @@ include README.md
 recursive-include octoprint_arc_welder/templates *
 recursive-include octoprint_arc_welder/static *
 recursive-include octoprint_arc_welder/data *
-recursive-include octoprint_arc_welder/data/firmware *
+prune octoprint_arc_welder/test

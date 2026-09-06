@@ -1,0 +1,41 @@
+# Taskfile to be used with task: https://taskfile.dev
+#
+# task itself is installed as a "dev" dependency of this plugin, so after a
+# `uv sync` it is available as `go-task` (or `task`) inside the project venv:
+#
+#   uv sync
+#   uv run go-task --list-all
+#
+
+version: "3"
+
+tasks:
+    install:
+        desc: Sync the project venv (runtime + dev dependencies)
+        cmds:
+          - uv sync
+
+    lint:
+        desc: Run pre-commit across the tree
+        cmds:
+          - uvx pre-commit run --all-files
+
+    test:
+        desc: Run the test suite
+        cmds:
+          - uv run pytest
+
+    build:
+        desc: Build sdist & wheel into dist/
+        cmds:
+          - uv build
+
+    build-sdist:
+        desc: Build the sdist
+        cmds:
+          - uv build --sdist
+
+    build-wheel:
+        desc: Build the wheel
+        cmds:
+          - uv build --wheel

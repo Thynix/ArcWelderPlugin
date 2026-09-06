@@ -1,0 +1,137 @@
+[build-system]
+requires = [
+    # 77+ for [[tool.setuptools.ext-modules]] and PEP 639 license metadata
+    "setuptools>=77",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Arc-Welder"
+version = "1.1.0rc7"
+description = "Converts line segments to curves, which reduces the number of gcodes per second, hopefully eliminating stuttering."
+authors = [
+    { name = "Brad Hochgesang", email = "FormerLurker@pm.me" },
+    { name = "Steve Dougherty", email = "steve@asksteved.com" },
+]
+requires-python = ">=3.10,<4"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+dependencies = [
+    "OctoPrint>=1.8.0",
+    "packaging",
+]
+
+[project.entry-points."octoprint.plugin"]
+arc_welder = "octoprint_arc_welder"
+
+[project.urls]
+Homepage = "https://github.com/Thynix/ArcWelderPlugin"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[dependency-groups]
+dev = [
+    "build>=1.2",
+    "djlint>=1.45",
+    "go-task-bin>=3.40",
+    "pre-commit>=3.7",
+    "pytest>=8",
+    "ruff>=0.16",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E4", "E7", "E9",  # pycodestyle errors
+    "W",               # pycodestyle warnings
+    "F",               # pyflakes
+    "I",               # import sorting
+    "UP",              # pyupgrade
+    "B",               # flake8-bugbear
+    "C4",              # flake8-comprehensions
+    "SIM",             # flake8-simplify
+    "PERF",            # perflint
+    "RUF",             # ruff-specific
+]
+ignore = [
+    "C408",     # dict(...) call - used pervasively for settings trees
+    "RUF012",   # mutable class default - the class-level config dicts are constants
+    "SIM108",   # if-else -> ternary is not always clearer
+    "PERF203",  # try/except in a loop
+    "PERF401",  # manual list building - clearer than a comprehension here
+]
+
+[tool.djlint]
+profile = "jinja"
+extension = "jinja2"
+# H021: inline styles - the settings/tab templates set widths and progress-bar
+#       fills inline; moving them to a stylesheet is churn with no real benefit.
+# H019: 'javascript:void(0)' hrefs - these anchors are driven by Knockout
+#       'data-bind="click:"' handlers, which is the standard OctoPrint UI idiom.
+# J018: url_for() for internal links - these templates render inside OctoPrint's
+#       settings dialog, not via Flask routing, so url_for() does not apply.
+ignore = "H021,H019,J018"
+
+[tool.codespell]
+ignore-words = ".codespell_ignore_words"
+skip = "./.git,./uv.lock,./build,./dist,./*.egg-info,./octoprint_arc_welder/data/lib/c,./octoprint_arc_welder/static/js/showdown.min.js"
+
+[tool.uv]
+# Rebuild the PyArcWelder extension when its C/C++ sources or the build
+# configuration change, not just when the version bumps.
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "octoprint_arc_welder/data/lib/c/**/*.cpp" },
+    { file = "octoprint_arc_welder/data/lib/c/**/*.h" },
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = [
+    "octoprint_arc_welder",
+    "octoprint_arc_welder.*",
+]
+exclude = [
+    "octoprint_arc_welder.test",
+    "octoprint_arc_welder.test.*",
+]
+
+[[tool.setuptools.ext-modules]]
+name = "PyArcWelder"
+# Enables the plugin-attributed "Postprocessed for the ArcWelderPlugin by ["
+# stamp in arc_welder.cpp (#ifdef IS_ARCWELDER_PLUGIN)
+define-macros = [["IS_ARCWELDER_PLUGIN", "1"]]
+include-dirs = [
+    "octoprint_arc_welder/data/lib/c/arc_welder",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib",
+    "octoprint_arc_welder/data/lib/c/py_arc_welder",
+]
+sources = [
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/array_list.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/circular_buffer.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/extruder.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/gcode_comment_processor.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/gcode_parser.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/gcode_position.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/parsed_command.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/parsed_command_parameter.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/position.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/utilities.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/logger.cpp",
+    "octoprint_arc_welder/data/lib/c/gcode_processor_lib/fpconv.cpp",
+    "octoprint_arc_welder/data/lib/c/arc_welder/arc_welder.cpp",
+    "octoprint_arc_welder/data/lib/c/arc_welder/segmented_arc.cpp",
+    "octoprint_arc_welder/data/lib/c/arc_welder/segmented_shape.cpp",
+    "octoprint_arc_welder/data/lib/c/py_arc_welder/py_logger.cpp",
+    "octoprint_arc_welder/data/lib/c/py_arc_welder/py_arc_welder.cpp",
+    "octoprint_arc_welder/data/lib/c/py_arc_welder/py_arc_welder_extension.cpp",
+    "octoprint_arc_welder/data/lib/c/py_arc_welder/py_arc_welder_version.cpp",
+    "octoprint_arc_welder/data/lib/c/py_arc_welder/python_helpers.cpp",
+]

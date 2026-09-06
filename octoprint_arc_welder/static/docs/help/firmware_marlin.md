@@ -43,11 +43,11 @@ This setting represents the default length of an arc segment in mm.  The smaller
 
 ```//#define ARC_SEGMENTS_PER_R    1 // Max segment length, MM_PER = Min```
 
-I'm not sure what this does at the moment, but I will research and update when I know.  Probably safe to leve it disabled.
+I'm not sure what this does at the moment, but I will research and update when I know.  Probably safe to leave it disabled.
 
 ```#define MIN_ARC_SEGMENTS       24 // Minimum number of segments in a complete circle```
 
-This is a nifty feature that will add more detail as the radius of the arcs gets smaller.  This allows you get very high quality long AND short radius arcs.  Larger numbers can cause slowdown for very tiny arcs, but the default setting here works very well.  When this setting is enabled the maximum arc length is controled by the ```MM_PER_ARC_SEGMENT``` setting.  This is the combo I have used the most and recommend.
+This is a nifty feature that will add more detail as the radius of the arcs gets smaller.  This allows you get very high quality long AND short radius arcs.  Larger numbers can cause slowdown for very tiny arcs, but the default setting here works very well.  When this setting is enabled the maximum arc length is controlled by the ```MM_PER_ARC_SEGMENT``` setting.  This is the combo I have used the most and recommend.
 
 ```//#define ARC_SEGMENTS_PER_SEC 50 // Use feedrate to choose segment length (with MM_PER_ARC_SEGMENT as the minimum)```
 
@@ -70,4 +70,3 @@ This isn't going to be something you need for Arc Welder, and I'm pretty sure it
 ```//#define SF_ARC_FIX              // Enable only if using SkeinForge with "Arc Point" fillet procedure```
 
 If you are using SkeinForge you may want to look into this setting.  This is another one I don't know anything about.
-

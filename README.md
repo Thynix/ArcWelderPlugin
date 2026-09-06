@@ -42,7 +42,7 @@ You can install a specific version of *Arc Welder* from a URL within the plugin 
 
 ##### Installation from a URL
 
-1. Navigate to the [releases on Github](https://github.com/FormerLurker/ArcWelderPlugin/releases).
+1. Navigate to the [releases on Github](https://github.com/Thynix/ArcWelderPlugin/releases).
 2. Select the release you are interested in (the most recent release is at the top), and click on the version number.  Note that **Pre-Releases** will be tagged, so avoid those if you are only interested in stable versions.
 3. Read the release notes carefully.  It may contain important information!
 4. Scroll to the bottom of the release page and ensure the **Assets** are expanded.
@@ -59,7 +59,7 @@ By default, Arc-Welder will automatically convert any newly added GCode files an
 
 You can also convert existing files from the file manager by clicking a new icon (compress icon - two arrows pointing towards each other) that will now be available within the file manager.  Note: You cannot convert files that have already been converted by *Arc Welder*!
 
-When a new file is queued, it will display within the collapsable *Processor Tasks* section within the *Arc Welder* tab.  You can cancel any queued tasks by clicking on the red X icon.  When the file begins processing, a progress bar will display along with a bunch of cool statistics about the conversion process.  If your file is marked for printing (see the *print after processing* setting below), a printer icon will appear next to it.  Don't worry, Arc Welder will not print any queued files if a print starts while it is processing or queued.  In fact, to protect your print, arc welder will automatically cancel and re-queue any files that are currently processing.  You can also cancel a file that is currently processing by clicking on the red X next to its name.
+When a new file is queued, it will display within the collapsible *Processor Tasks* section within the *Arc Welder* tab.  You can cancel any queued tasks by clicking on the red X icon.  When the file begins processing, a progress bar will display along with a bunch of cool statistics about the conversion process.  If your file is marked for printing (see the *print after processing* setting below), a printer icon will appear next to it.  Don't worry, Arc Welder will not print any queued files if a print starts while it is processing or queued.  In fact, to protect your print, arc welder will automatically cancel and re-queue any files that are currently processing.  You can also cancel a file that is currently processing by clicking on the red X next to its name.
 
 Once a file has been converted, the *Arc Welder* tab will show detailed statistics within the tab about the conversion, including before/after file sizes, compression information, before and after extrusion and travel statistics, and more.  You can view these statistics at any time by selecting a welded file or by clicking the statistics icon in the file manager.
 
@@ -72,15 +72,15 @@ These settings control the main aspects of the plugin and how your GCode file wi
 
 * **Arc Welder Enabled** - Check or uncheck to enable or disable the plugin.  This prevents *Arc Welder* from converting any files and adding buttons to the file browser.  It will not remove the plugin from the tabs or settings pages.  If you want to truly disable *Arc Welder*, please do so in the plugin manager.
 * **Resolution in MM** - This setting controls how much play *Arc Welder* has in converting GCode points into arcs.  If the arc deviates from the original points by + or - 1/2 of the resolution, the points will **not** be converted.  The default setting is 0.05 which means the arcs may not deviate by more than +- 0.025mm (that's a **really** tiny deviation).  Increasing the resolution will result in more arcs being converted but will make the tool paths less accurate.  Decreasing the resolution will result in fewer arcs but more accurate tool paths.  I don't recommend going above 0.1MM.  Higher values than that may result in print failure.
-* **Path Tolerance %** - This feature controls the maximum allowable deviation in path length compared to the original length.  This setting can be higher than you'd expect (5% by default) especially for larger arcs due to the way the firmware implements arc interpolation.  However, future firmware versions may add corrections to the arc path to correct for a slight reduction in path length caused by inscribing the interpolated segments inside of the arc.  This setting would then be userful, at least until an extrusion correction factor can be added to the algorithm.
-* **Maximum Arc Radius** - This is a safety feature to prevent unusually large arcs from being generated.  Internally, *Arc Welder* uses a constant to prevent an arc with a very large radius from being generated where the path is essentially (but not exactly) a straight line.  If it is not perfectly straight and if my constant isn't conservative enough, an extremely large arc could be created that may have the wrong direction of rotation.  The default value works fine for all of the gCode I've tested (it is about 1/7th of the radius of the worst errant arc I've encountered).  If you discover that you need to adjust this setting because of errant arcs, please [create an issue](https://github.com/FormerLurker/ArcWelderPlugin/issues/new) and let me know!  The default setting is **1000000 mm** or **1KM**.
+* **Path Tolerance %** - This feature controls the maximum allowable deviation in path length compared to the original length.  This setting can be higher than you'd expect (5% by default) especially for larger arcs due to the way the firmware implements arc interpolation.  However, future firmware versions may add corrections to the arc path to correct for a slight reduction in path length caused by inscribing the interpolated segments inside of the arc.  This setting would then be useful, at least until an extrusion correction factor can be added to the algorithm.
+* **Maximum Arc Radius** - This is a safety feature to prevent unusually large arcs from being generated.  Internally, *Arc Welder* uses a constant to prevent an arc with a very large radius from being generated where the path is essentially (but not exactly) a straight line.  If it is not perfectly straight and if my constant isn't conservative enough, an extremely large arc could be created that may have the wrong direction of rotation.  The default value works fine for all of the gCode I've tested (it is about 1/7th of the radius of the worst errant arc I've encountered).  If you discover that you need to adjust this setting because of errant arcs, please [create an issue](https://github.com/Thynix/ArcWelderPlugin/issues/new) and let me know!  The default setting is **1000000 mm** or **1KM**.
 * **Allow 3D Arcs (for vase mode)** - This is an experimental setting that allows you to use *Arc Welder* while printing in spiral vase mode.  Note that not all firmware that supports Arc commands (G2/G3) will also support z axis changes while printing arcs.  Use with caution.
 * **File Processing Type** - There are three options here:
   * *All New Files* - All files added to OctoPrint will be automatically converted.
   * *Manual Processing Only* - Convert files by clicking on the compress button in the file manager.  Files that are already compressed will have the compress button disabled.
 
 The default setting is *Automatic and Manual Processing*.
-  
+
 #### Output File Settings
 Here you can control how *Arc Welder* will handle the output file.  It can either overwrite the source GCode file completely, or you can create a new file with a different name.
 
@@ -171,7 +171,7 @@ G2 X40 I20
 
 If your printer supports arc commands, it should move across a small arc from the origin.  Please feel free to let me know if your firmware supports arc movements, and I may add it to the list.
 
-**Warning**:  The above GCode has not been tested on all printers.  Please use it with caution and [report any issues here](https://github.com/FormerLurker/ArcWelderPlugin/issues).
+**Warning**:  The above GCode has not been tested on all printers.  Please use it with caution and [report any issues here](https://github.com/Thynix/ArcWelderPlugin/issues).
 
 ### Other Firmware Considerations
 
@@ -222,7 +222,7 @@ Verify that you have enough memory to enable this feature if it is disabled.  Yo
 
 If you are running Python 3, confirm that you have the dev package installed.  Please see the installation instructions above for details.
 
-If you are still having problems, please (create an issue)[https://github.com/FormerLurker/ArcWelderPlugin/issues/new] and be sure to include the plugin_pluginmanager_console.log file, which you can find by opening the Octoprint Settings (wrench/spanner icon), clicking on the **Logging** menu, then finding and downloading the proper log file.  Please upload the log file to (gist.github.com)[https://gist.github.com] and place a link within the issue.  Also include the OctoPrint version, the version of python you are running, and the OS version. If you are using OctoPi, please include that version as well.
+If you are still having problems, please [create an issue](https://github.com/Thynix/ArcWelderPlugin/issues/new) and be sure to include the plugin_pluginmanager_console.log file, which you can find by opening the Octoprint Settings (wrench/spanner icon), clicking on the **Logging** menu, then finding and downloading the proper log file.  Please upload the log file to [gist.github.com](https://gist.github.com) and place a link within the issue.  Also include the OctoPrint version, the version of python you are running, and the OS version. If you are using OctoPi, please include that version as well.
 
 **4.  I see no improvement in my prints.**
 
@@ -242,10 +242,32 @@ First, if you are trying to install to a linux machine (this will not be necessa
 
 Try connecting to a terminal and running the following command:  ```sudo apt-get install g++```
 
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and
+builds. A C++ compiler is required to build the bundled `PyArcWelder` extension
+(`sudo apt-get install -y python3-dev g++` on Debian/Ubuntu; the "Desktop
+development with C++" workload from the Visual Studio Build Tools on Windows).
+
+```
+uv sync                 # create .venv with runtime + dev dependencies
+uv run pytest           # run the test suite
+uv build                # build sdist + wheel into dist/
+```
+
+To install a working copy into an existing OctoPrint environment:
+
+```
+uv pip install --python /path/to/octoprint/venv/bin/python .
+```
+
+The pinned dependency set lives in `uv.lock`; regenerate it with `uv lock` after
+changing dependencies.
+
 ## Reporting Issues
 
-If you have a problem using *Arc Welder*, please first check the open and closed issues.  If you find an existing issue that is close to your own, please read through it and see if there are any suggested fixes.  If your issue is unique, consider creating a new issue.  However, please don't use the Github issues as general technical support.  They are for reporting potential bugs in the software.  When in doubt, go ahead and [create an issue here](https://github.com/formerlurker/arcwelderplugin/issues).  I do want to help no matter what your problem is, but I spend so much time time dealing with issues and I'd rather be improving the software if at all possible.  Bug reports improve software, tech support does not.  Thanks in advance!
+If you have a problem using *Arc Welder*, please first check the open and closed issues.  If you find an existing issue that is close to your own, please read through it and see if there are any suggested fixes.  If your issue is unique, consider creating a new issue.  However, please don't use the Github issues as general technical support.  They are for reporting potential bugs in the software.  When in doubt, go ahead and [create an issue here](https://github.com/Thynix/ArcWelderPlugin/issues).  I do want to help no matter what your problem is, but I spend so much time time dealing with issues and I'd rather be improving the software if at all possible.  Bug reports improve software, tech support does not.  Thanks in advance!
 
 ## License
 
-View the [*Arc Welder* license](https://raw.githubusercontent.com/FormerLurker/ArcWelderPlugin/master/LICENSE).
+View the [*Arc Welder* license](https://raw.githubusercontent.com/Thynix/ArcWelderPlugin/main/LICENSE).
