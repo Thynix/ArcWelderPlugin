@@ -105,6 +105,9 @@ exclude = [
 
 [[tool.setuptools.ext-modules]]
 name = "PyArcWelder"
+# Enables the plugin-attributed "Postprocessed for the ArcWelderPlugin by ["
+# stamp in arc_welder.cpp (#ifdef IS_ARCWELDER_PLUGIN)
+define-macros = [["IS_ARCWELDER_PLUGIN", "1"]]
 include-dirs = [
     "octoprint_arc_welder/data/lib/c/arc_welder",
     "octoprint_arc_welder/data/lib/c/gcode_processor_lib",
