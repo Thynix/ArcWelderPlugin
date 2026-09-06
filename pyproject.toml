@@ -34,6 +34,7 @@ content-type = "text/markdown"
 [dependency-groups]
 dev = [
     "build>=1.2",
+    "djlint>=1.45",
     "go-task-bin>=3.40",
     "pre-commit>=3.7",
     "pytest>=8",
@@ -67,6 +68,7 @@ ignore = [
 
 [tool.djlint]
 profile = "jinja"
+extension = "jinja2"
 # H021: inline styles - the settings/tab templates set widths and progress-bar
 #       fills inline; moving them to a stylesheet is churn with no real benefit.
 # H019: 'javascript:void(0)' hrefs - these anchors are driven by Knockout
