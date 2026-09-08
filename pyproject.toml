@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Arc-Welder"
-version = "1.1.0rc7"
+version = "1.1.0rc8"
 description = "Converts line segments to curves, which reduces the number of gcodes per second, hopefully eliminating stuttering."
 authors = [
     { name = "Brad Hochgesang", email = "FormerLurker@pm.me" },
