@@ -13,7 +13,7 @@ authors = [
     { name = "Brad Hochgesang", email = "FormerLurker@pm.me" },
     { name = "Steve Dougherty", email = "steve@asksteved.com" },
 ]
-requires-python = ">=3.10,<4"
+requires-python = ">=3.9,<4"
 license = "AGPL-3.0-or-later"
 license-files = ["LICENSE"]
 dependencies = [
@@ -34,7 +34,9 @@ content-type = "text/markdown"
 [dependency-groups]
 dev = [
     "build>=1.2",
-    "djlint>=1.45",
+    # djlint dropped Python 3.9; the plugin still targets 3.9, so the
+    # template linter is only pulled in on the interpreters it supports.
+    "djlint>=1.45; python_version >= '3.10'",
     "go-task-bin>=3.40",
     "pre-commit>=3.7",
     "pytest>=8",
@@ -43,7 +45,7 @@ dev = [
 
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py39"
 
 [tool.ruff.lint]
 select = [
