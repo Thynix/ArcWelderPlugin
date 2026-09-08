@@ -6,6 +6,8 @@ Converts G0/G1 commands to G2/G3 commands.  This can greatly compress some GCode
 
 #### Prerequisites
 
+*Arc Welder* requires Python 3.9 or newer and OctoPrint 1.8.0 or newer.
+
 ##### Python Development Package for Linux
 
 Python is already installed if you are running OctoPrint, but if you are running on Linux, the python-dev package is required.
