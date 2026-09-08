@@ -33,7 +33,7 @@ import urllib.parse as urllibparse
 from shutil import copyfile
 
 import octoprint.plugin
-from flask import abort, jsonify, request, send_file
+from flask import jsonify, request
 from octoprint.access import permissions
 from octoprint.events import Events
 from octoprint.filemanager import FileDestinations
@@ -516,13 +516,6 @@ class ArcWelderPlugin(
             else:
                 result["error"] = update_results["error"]
         return jsonify(result)
-
-    @octoprint.plugin.BlueprintPlugin.route("/downloadFile", methods=["GET"])
-    @permissions.Permissions.ADMIN.require(403)
-    def download_file_request(self):
-        if request.args.get("type") != "log" or not self._log_file_path or not os.path.isfile(self._log_file_path):
-            abort(404)
-        return send_file(self._log_file_path, as_attachment=True)
 
     def send_preprocessing_tasks_update(self):
         preprocessing_tasks = []
